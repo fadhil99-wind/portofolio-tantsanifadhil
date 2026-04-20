@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portofolio Fadhil</title>
+  <link rel="stylesheet" 
+  href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="pp fadhil.jpg.jpeg" alt="Logo" class="logo-img">
+      <div>
+        <h1>Tantsani Fadhil Ramadhan</h1>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="#about">Tentang</a>
+      <a href="#skill">Skill</a>
+      <a href="#projects">Proyek</a>
+      <a href="#contact">Kontak</a>
+    </nav>
+
+    <div class="actions">
+      <button id="themeToggle" class="btn btn-ghost">Tema</button>
+      <button id="adminToggle" class="btn btn-primary">Mode Edit</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-text">
+        <span class="badge">Available for collaboration</span>
+        <h2>Halo, saya <span>Tantsani Fadhil Ramadhan</span>.</h2>
+        <p>
+          Portofolio saya ini bisa dilihat langsung oleh siapa pun.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#projects" class="btn btn-primary">Lihat Proyek</a>
+          <a href="#contact" class="btn btn-ghost">Hubungi Saya</a>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <img src="pp fadhil.jpg.jpeg" alt="Foto Profil" class="profile-img">
+        <h3>Tantsani Fadhil Ramadhan </h3>
+        <p>"Start, Do, Finish"</p>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <div class="section-title">
+        <h3>Tentang Saya</h3>
+        <p><p>Saya adalah individu yang berorientasi dalam bidang komunikasi, pengembangan diri, dan pembinaan.</p></p>
+      </div>
+
+      <div class="about-grid">
+        <div class="info-card">
+          <h4>Profil</h4>
+          <p>
+            Saya adalah seseorang yang tertarik pada public speaking, coaching, konten,
+            dan pengembangan diri.
+          </p>
+        </div>
+
+        <div class="info-card">
+          <h4>Fokus</h4>
+          <p>
+            Membangun karya yang bermanfaat, tampil rapi, dan mudah dipahami oleh orang lain.
+          </p>
+        </div>
+
+        <div class="info-card">
+          <h4>Tujuan</h4>
+          <p>
+            Menunjukkan hasil terbaik melalui portfolio yang profesional dan menarik.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills" class="section">
+      <div class="section-title">
+        <h3>Skill</h3>
+        <p>Beberapa kemampuan dari pengalaman yang saya miliki.</p>
+      </div>
+
+      <div class="skills">
+        <span>Public Speaking</span>
+        <span>Content Creator</span>
+        <span>Coaching</span>
+        <span>Communication</span>
+        <span>Leadership</span>
+      </div>
+    </section>
+
+    <section id="projects" class="section">
+      <div class="section-title section-head">
+        <div>
+          <h3>Proyek & Pengalaman</h3>
+          <p>Klik kartu proyek untuk melihat detailnya.</p>
+        </div>
+        <button id="addProjectBtn" class="btn btn-primary hidden">+ Tambah Proyek</button>
+      </div>
+
+      <div id="projectGrid" class="projects-grid"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h3>Testimoni / Catatan</h3>
+        <p>Bagian ini bisa kamu isi dengan apresiasi, pencapaian, atau komentar singkat.</p>
+      </div>
+
+      <div id="testimonialGrid" class="testimonial-grid"></div>
+    </section>
+
+    <section id="contact" class="section contact">
+      <div class="contact-card">
+        <h3>Kontak</h3>
+        <p>Email: padhilyo@gmail.com</p>
+        <p>Instagram: fadhilramadhan.05</p>
+        <a href="mailto:padhilyo@gmail.com" class="btn btn-primary">Kirim Email</a>
+      </div>
+    </section>
+  </main>
+
+</section>
+
+  <footer class="footer">
+    <p>© 2026 Portofolio Fadhil</p>
+  </footer>
+
+  <div id="detailModal" class="modal hidden">
+    <div class="modal-box">
+      <button class="close-btn" data-close="detailModal">×</button>
+      <h3 id="modalTitle"></h3>
+      <p id="modalCategory" class="modal-category"></p>
+      <p id="modalDesc"></p>
+      <a id="modalLink" class="btn btn-primary modal-link" target="_blank" rel="noreferrer">Buka</a>
+    </div>
+  </div>
+
+  <div id="formModal" class="modal hidden">
+    <div class="modal-box form-box">
+      <button class="close-btn" data-close="formModal">×</button>
+      <h3>Tambah Proyek</h3>
+
+      <form id="projectForm" class="form">
+        <input type="text" id="projectTitle" placeholder="Judul proyek" required />
+        <input type="text" id="projectCategory" placeholder="Kategori" required />
+        <textarea id="projectDesc" placeholder="Deskripsi proyek" required></textarea>
+        <input type="url" id="projectLink" placeholder="Link (opsional)" />
+        <button type="submit" class="btn btn-primary">Simpan Proyek</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+<div id="certModal" class="modal hidden">
+  <div class="modal-box form-box">
+    <button class="close-btn" data-close="certModal">×</button>
+    <h3>Tambah Sertifikat</h3>
+
+    <form id="certForm" class="form">
+      <input type="text" id="certTitle" placeholder="Judul Sertifikat" required />
+      <input type="text" id="certIssuer" placeholder="Penyelenggara" required />
+      <input type="file" id="certImage" accept="image/*" required />
+      <button type="submit" class="btn btn-primary">Simpan</button>
+    </form>
+  </div>
+</div>
