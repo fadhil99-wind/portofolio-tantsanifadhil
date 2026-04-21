@@ -21,6 +21,13 @@ const defaultProjects = [
     desc: "Aktif dalam koordinasi, kepemimpinan, dan kerja sama tim di berbagai kegiatan.",
     link: "#"
   }
+   {
+    title: "Melatih Karate",
+    category: "Coaching",
+    desc: "Mengajar dan melatih dalam bela diri karate dengan keterampilan dasar bela diri dalam kegiatan latihan maupun pertandingan.",
+    link: "#"
+  }
+  
 ];
 
 const defaultTestimonials = [
