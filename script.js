@@ -46,9 +46,20 @@ const defaultTestimonials = [
   ]
 },
   {
-    title: "Prestasi",
-    text: ""
-  }
+  "title": "Prestasi dan Penghargaan",
+  "achievements": [
+    "Juara 1 Duta Genre Putra Kabupaten Pati Tahun 2025",
+    "Juara I Kumite -68kg Kadet Putra (Piala Raja Yogyakarta Karate International Open Championship)",
+    "Participant in the Dubbing Competition (high school level) of the National English Online Competition 2024",
+    "Juara 1 LKBB GALA AGNI ABHIPRAYA 2024",
+    "Juara I (Satu) Kumite -52 Kg SMP/MTs Putra (Kejuaraan Karate Pelajar Se-Kabupaten Pati Tahun 2022)",
+    "Partisipasi Sebagai Anggota Pasukan Pengibar Bendera Pusaka Merah Putih (Peringatan HUT Kemerdekaan RI ke-77 Tahun 2022 Kecamatan Tambakromo Kabupaten Pati)",
+    "Juara III (Tiga) Kumite +61 Kg Putra (Pekan Olahraga Pelajar Daerah (POPDA) Tingkat Kabupaten Pati Tahun 2025)",
+    "Juara III Kumite -52 Kg Kadet Putra (Kejuaraan Karate Pati Open Tahun 2023 Federasi Olahraga Karate-Do Indonesia Cabang Pati)",
+    "Juara III Cabang Olahraga Karate Nomor Tanding Kumite -61 Kg (Seleksi Pekan Olahraga Pelajar Daerah (POPDA) Tingkat Kabupaten Pati Tahun 2023)",
+    "Harapan 1 Lomba Tingkat 1 Gugusdepan 05.001 Pangkalan SMPN PRAGOLA (Gerakan Pramuka Kwartir Cabang Kabupaten Pati)"
+  ]
+},
 ];
 
 const els = {
