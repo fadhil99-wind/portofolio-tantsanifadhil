@@ -33,10 +33,26 @@ const defaultProjects = [
 const defaultTestimonials = [
   {
     title: "Apresiasi",
-    text: ""
+    text: "- Melatih dan sering menjadi Official di Dojo (tempat berlatih) 'SPARTAN' Tambakromo
+
+- Pelatih dan Official Paskibra SMPN 1 Tambakromo 'PASTABARA'
+
+- Mengikuti berbagai perlombaan karate dan mendapatkan juara di kategori kadet dan junior kumite
+
+- Menjadi Komandan Peleton LKBB dan Pemimpin upacara di upacara pembukaan event basket Pemuda Cup Tahun 2024
+
+- Menjabat sebagai Sie Bidang Keterampilan di Extrakurikuler DUTA SMAGA
+
+- Mengikuti kepengurusan PIK-R Juwana 'GRESENA' tahun 2025
+
+- Mengikuti lomba baca puisi FLS3N tingkat Kabupaten Tahun 2025
+
+- Wakil Ketua OSIS saat SMP periode 2021/2022
+
+- Menjadi narasumber dalam kegiatan edukasi remaja terkait perencanaan kehidupan berkeluarga, kesehatan reproduksi, dan pencegahan stunting"
   },
   {
-    title: "Kesan",
+    title: "Prestasi",
     text: ""
   }
 ];
