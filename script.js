@@ -33,7 +33,7 @@ const defaultProjects = [
 const defaultTestimonials = [
   {
   "title": "Apresiasi",
-  "achievements": [
+  "text": [
     "Melatih dan sering menjadi Official di Dojo (tempat berlatih) 'SPARTAN' Tambakromo",
     "Pelatih dan Official Paskibra SMPN 1 Tambakromo 'PASTABARA'",
     "Mengikuti berbagai perlombaan karate dan mendapatkan juara di kategori kadet dan junior kumite",
