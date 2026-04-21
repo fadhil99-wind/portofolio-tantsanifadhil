@@ -20,7 +20,7 @@ const defaultProjects = [
     category: "Organisasi",
     desc: "Aktif dalam koordinasi, kepemimpinan, dan kerja sama tim di berbagai kegiatan.",
     link: "#"
-  }
+  },
    {
     title: "Melatih Karate",
     category: "Coaching",
