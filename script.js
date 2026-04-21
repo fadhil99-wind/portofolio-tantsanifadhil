@@ -26,7 +26,7 @@ const defaultProjects = [
     category: "Coaching",
     desc: "Mengajar dan melatih dalam bela diri karate dengan keterampilan dasar bela diri dalam kegiatan latihan maupun pertandingan.",
     link: "#"
-  },
+  }
   
 ];
 
