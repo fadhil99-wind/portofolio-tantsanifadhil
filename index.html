@@ -653,12 +653,45 @@ label{ font-family: var(--f-mono); font-size:11.5px; letter-spacing:0.05em; text
 @media (prefers-reduced-motion: reduce){
   .cat-tail, .cat-eye-l, .cat-eye-r{ animation: none !important; }
 }
+
+/* =========================================================
+   PRIVACY / EDIT MODE
+   Default = terkunci (viewer publik): semua kontrol yang
+   mengubah data disembunyikan lewat class .edit-only.
+========================================================= */
+body:not(.edit-mode) .edit-only{ display:none !important; }
+
+.lock-toggle{
+  position: fixed; left: 18px; bottom: 18px; z-index: 90;
+  display:flex; align-items:center; gap:8px;
+  font-family: var(--f-mono); font-size:11.5px; letter-spacing:0.04em;
+  background: var(--panel); border:1px solid var(--line-strong);
+  padding: 10px 16px 10px 12px; border-radius: 999px; color: var(--ink-dim);
+  transition: border-color var(--dur), color var(--dur), transform var(--dur);
+}
+.lock-toggle svg{ width:14px; height:14px; stroke: var(--ink-dim); transition: stroke var(--dur); }
+.lock-toggle:hover, .lock-toggle:focus-visible{ border-color: var(--amber); color: var(--amber); transform: translateY(-2px); }
+.lock-toggle:hover svg, .lock-toggle:focus-visible svg{ stroke: var(--amber); }
+body.edit-mode .lock-toggle{ border-color: var(--amber); color: var(--amber); background: rgba(255,181,69,0.08); }
+body.edit-mode .lock-toggle svg{ stroke: var(--amber); }
+@media (max-width: 640px){ .lock-toggle{ left:12px; bottom:14px; padding:9px 14px 9px 11px; } }
+
+.edit-banner{
+  display:none; background: linear-gradient(90deg, var(--amber-deep), var(--amber-strong));
+  color:#171008; font-family: var(--f-mono); font-size:12px; letter-spacing:0.04em;
+  text-align:center; padding: 8px 14px; font-weight:600;
+}
+body.edit-mode .edit-banner{ display:block; }
+
+.pass-error{ color: var(--danger); font-family: var(--f-mono); font-size:12px; margin-top:10px; display:none; }
+.pass-error.show{ display:block; }
 </style>
 </head>
 <body>
 
 <a href="#main" class="skip-link">Lewati ke konten utama</a>
 <div class="cursor-spot" id="cursorSpot" aria-hidden="true"></div>
+<div class="edit-banner">Mode Edit aktif — pengunjung lain tidak melihat ini kecuali tahu passwordnya</div>
 
 <!-- ============ HEADER ============ -->
 <header class="site-header">
@@ -721,11 +754,11 @@ label{ font-family: var(--f-mono); font-size:11.5px; letter-spacing:0.05em; text
           <img id="portraitImg" alt="Foto profil Tantsani Fadhil Ramadhan" style="display:none;">
           <span class="portrait-corner tl" aria-hidden="true"></span>
           <span class="portrait-corner br" aria-hidden="true"></span>
-          <button class="portrait-upload-btn" id="portraitUploadBtn" type="button">
+          <button class="portrait-upload-btn edit-only" id="portraitUploadBtn" type="button">
             <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 8l5-5 5 5M5 21h14"/></svg>
             Unggah foto
           </button>
-          <input type="file" accept="image/*" id="portraitInput" class="visually-hidden">
+          <input type="file" accept="image/*" id="portraitInput" class="visually-hidden edit-only">
         </div>
       </div>
     </div>
@@ -780,7 +813,7 @@ label{ font-family: var(--f-mono); font-size:11.5px; letter-spacing:0.05em; text
           <div class="eyebrow">Proyek &amp; Pengalaman</div>
           <h2>Rekam jejak di atas panggung.</h2>
         </div>
-        <button class="btn btn-primary btn-sm" id="openProjectModal" type="button">+ Tambah Proyek</button>
+        <button class="btn btn-primary btn-sm edit-only" id="openProjectModal" type="button">+ Tambah Proyek</button>
       </div>
       <div class="project-grid reveal" id="projectGrid" style="margin-top:36px;">
         <!-- filled by JS -->
@@ -803,7 +836,7 @@ label{ font-family: var(--f-mono); font-size:11.5px; letter-spacing:0.05em; text
       </div>
 
       <div class="reveal">
-        <div class="upload-zone">
+        <div class="upload-zone edit-only">
           <div class="txt">
             <b id="uploadZoneTitle">Tambahkan bukti sertifikat</b>
             Unggah satu atau beberapa foto sekaligus.
@@ -859,7 +892,7 @@ label{ font-family: var(--f-mono); font-size:11.5px; letter-spacing:0.05em; text
             <div id="extraLinkList" class="extra-link-list"></div>
           </div>
 
-          <details class="link-editor">
+          <details class="link-editor edit-only">
             <summary>Kelola semua tautan (LinkedIn &amp; media sosial lainnya)</summary>
             <div class="fields">
               <div class="form-field" style="margin-bottom:0;">
@@ -965,6 +998,34 @@ label{ font-family: var(--f-mono); font-size:11.5px; letter-spacing:0.05em; text
       <div class="modal-actions">
         <button type="button" class="btn btn-ghost btn-sm" id="cancelProjectBtn">Batal</button>
         <button type="submit" class="btn btn-primary btn-sm">Simpan Proyek</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ EDIT-MODE LOCK ============ -->
+<button class="lock-toggle" id="lockToggle" type="button">
+  <svg id="lockIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+  <span id="lockLabel">Mode Edit</span>
+</button>
+
+<div class="modal-overlay" id="passModal" role="dialog" aria-modal="true" aria-labelledby="passModalTitle">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-head">
+      <h3 id="passModalTitle">Masuk Mode Edit</h3>
+      <button class="modal-close" id="closePassModal" type="button" aria-label="Tutup dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <form id="passForm">
+      <div class="form-field" style="margin-bottom:6px;">
+        <label for="passInput">Password</label>
+        <input type="password" id="passInput" placeholder="••••••••" autocomplete="current-password" required>
+      </div>
+      <p class="pass-error" id="passError">Password salah. Coba lagi.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost btn-sm" id="cancelPassBtn">Batal</button>
+        <button type="submit" class="btn btn-primary btn-sm">Buka Mode Edit</button>
       </div>
     </form>
   </div>
@@ -1142,7 +1203,7 @@ label{ font-family: var(--f-mono); font-size:11.5px; letter-spacing:0.05em; text
             ${p.link ? `<a class="project-link" href="${escapeAttr(p.link)}" target="_blank" rel="noopener">Lihat tautan
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M8 7h9v9"/></svg>
             </a>` : '<span></span>'}
-            <button class="card-delete" data-id="${p.id}" aria-label="Hapus proyek ${escapeHtml(p.title)}" type="button">
+            <button class="card-delete edit-only" data-id="${p.id}" aria-label="Hapus proyek ${escapeHtml(p.title)}" type="button">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0-1 13a1 1 0 01-1 1H8a1 1 0 01-1-1L6 7"/></svg>
             </button>
           </div>
@@ -1260,7 +1321,7 @@ label{ font-family: var(--f-mono); font-size:11.5px; letter-spacing:0.05em; text
       <div class="gallery-item">
         <img src="${it.image}" alt="${escapeHtml(it.caption)}" data-id="${it.id}" tabindex="0">
         <div class="cap">${escapeHtml(it.caption)}</div>
-        <button class="del" data-id="${it.id}" aria-label="Hapus ${escapeHtml(it.caption)}" type="button">
+        <button class="del edit-only" data-id="${it.id}" aria-label="Hapus ${escapeHtml(it.caption)}" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0-1 13a1 1 0 01-1 1H8a1 1 0 01-1-1L6 7"/></svg>
         </button>
       </div>
@@ -1352,7 +1413,7 @@ label{ font-family: var(--f-mono); font-size:11.5px; letter-spacing:0.05em; text
     extraWrap.innerHTML = links.extra.map(l => `
       <span class="extra-link-pill">
         <a href="${escapeAttr(l.url)}" target="_blank" rel="noopener">${escapeHtml(l.label)}</a>
-        <button type="button" data-id="${l.id}" aria-label="Hapus tautan ${escapeHtml(l.label)}">×</button>
+        <button type="button" class="edit-only" data-id="${l.id}" aria-label="Hapus tautan ${escapeHtml(l.label)}">×</button>
       </span>
     `).join('');
     $$('button', extraWrap).forEach(btn => {
@@ -1421,6 +1482,67 @@ label{ font-family: var(--f-mono); font-size:11.5px; letter-spacing:0.05em; text
   }
   cat.addEventListener('click', catSpeak);
   cat.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); catSpeak(); } });
+
+  /* ---------- privacy / edit mode ----------
+     Catatan: ini proteksi sisi-klien saja (tidak ada server),
+     jadi cukup untuk mencegah pengunjung biasa mengedit tanpa
+     sengaja — bukan pengaman tingkat tinggi. Siapa pun yang
+     membuka source code tetap bisa melewatinya di browser sendiri. */
+  const EDIT_PASS_HASH = 'b53b39694f63c228c7c7c97da5e625ed5a565ec1b0e1fcf05f5b0f5c1dc05850';
+  const EDIT_SESSION_KEY = 'tfr:editUnlocked';
+
+  async function sha256Hex(text){
+    const enc = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  const lockToggle = $('#lockToggle');
+  const lockLabel = $('#lockLabel');
+  const lockIconSvg = $('#lockIcon');
+  const passModal = $('#passModal');
+  const passForm = $('#passForm');
+  const passInput = $('#passInput');
+  const passError = $('#passError');
+
+  const OPEN_LOCK_PATH = '<rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 017.4-2.1"/>';
+  const CLOSED_LOCK_PATH = '<rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/>';
+
+  function setEditMode(on){
+    document.body.classList.toggle('edit-mode', on);
+    lockLabel.textContent = on ? 'Edit Aktif' : 'Mode Edit';
+    lockIconSvg.innerHTML = on ? OPEN_LOCK_PATH : CLOSED_LOCK_PATH;
+    if(on) sessionStorage.setItem(EDIT_SESSION_KEY, '1');
+    else sessionStorage.removeItem(EDIT_SESSION_KEY);
+  }
+
+  // Restore edit mode for this browser tab session only (tidak menetap selamanya)
+  if(sessionStorage.getItem(EDIT_SESSION_KEY) === '1'){ setEditMode(true); }
+
+  lockToggle.addEventListener('click', () => {
+    if(document.body.classList.contains('edit-mode')){
+      setEditMode(false);
+    } else {
+      passError.classList.remove('show');
+      passInput.value = '';
+      openModal(passModal);
+    }
+  });
+  $('#closePassModal').addEventListener('click', () => closeModal(passModal));
+  $('#cancelPassBtn').addEventListener('click', () => closeModal(passModal));
+  passModal.addEventListener('click', (e) => { if(e.target === passModal) closeModal(passModal); });
+
+  passForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const hash = await sha256Hex(passInput.value);
+    if(hash === EDIT_PASS_HASH){
+      setEditMode(true);
+      closeModal(passModal);
+    } else {
+      passError.classList.add('show');
+      passInput.select();
+    }
+  });
 
 })();
 </script>
