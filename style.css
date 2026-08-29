@@ -840,46 +840,23 @@ body.panel-open .music-toggle{ opacity:0; pointer-events:none; }
 }
 .pet-pupil{ transition: transform .08s linear; }
 
-/* kucing */
-.cat-tail{ transform-origin: 78px 78px; animation: tailWag 2.6s ease-in-out infinite; }
-@keyframes tailWag{ 0%,100%{ transform: rotate(0deg); } 50%{ transform: rotate(-14deg); } }
-.cat-ear-l, .cat-ear-r{ transform-origin: bottom center; }
-.pet-cat:hover .cat-ear-l{ animation: earTwitch 0.5s ease; }
-.pet-cat:hover .cat-ear-r{ animation: earTwitch 0.5s ease 0.08s; }
-@keyframes earTwitch{ 0%,100%{ transform: rotate(0deg); } 50%{ transform: rotate(10deg); } }
-.cat-eye-l, .cat-eye-r{ animation: blink 4.5s ease-in-out infinite; transform-origin:center; }
-.cat-eye-r{ animation-delay: 0.06s; }
+/* karakter pria (host) */
+.guy-body-group{ animation: guyBreathe 3.2s ease-in-out infinite; transform-origin: 48px 88px; }
+@keyframes guyBreathe{ 0%,100%{ transform: translateY(0) rotate(0deg); } 50%{ transform: translateY(-2px) rotate(0.6deg); } }
+.guy-arm-r{ transform-origin: 65px 41px; animation: micWave 3.6s ease-in-out infinite; }
+@keyframes micWave{ 0%,100%{ transform: rotate(0deg); } 50%{ transform: rotate(-4deg); } }
+.guy-eye-l, .guy-eye-r{ animation: blink 4.8s ease-in-out infinite; transform-origin:center; }
+.guy-eye-r{ animation-delay: 0.06s; }
 @keyframes blink{ 0%,92%,100%{ transform: scaleY(1); } 95%{ transform: scaleY(0.1); } }
-.pet.jump .cat-body-group{ animation: catJump 0.4s var(--ease); }
-@keyframes catJump{ 0%{ transform: translateY(0); } 40%{ transform: translateY(-10px); } 100%{ transform: translateY(0); } }
+.pet.jump .guy-body-group{ animation: guyJump 0.4s var(--ease); }
+@keyframes guyJump{ 0%{ transform: translateY(0); } 40%{ transform: translateY(-9px) rotate(-2deg); } 100%{ transform: translateY(0); } }
 
-/* elang */
-.eagle-body-group{ animation: eagleFloat 3.6s ease-in-out infinite; transform-origin: 48px 60px; }
-@keyframes eagleFloat{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-5px); } }
-.eagle-wing-l{ transform-origin: 40px 54px; animation: flapL 2.8s ease-in-out infinite; }
-.eagle-wing-r{ transform-origin: 56px 54px; animation: flapR 2.8s ease-in-out infinite; }
-@keyframes flapL{ 0%,100%{ transform: rotate(0deg); } 50%{ transform: rotate(-11deg); } }
-@keyframes flapR{ 0%,100%{ transform: rotate(0deg); } 50%{ transform: rotate(11deg); } }
-.eagle-eye-l, .eagle-eye-r{ animation: blink 5.6s ease-in-out infinite; transform-origin:center; }
-.pet.jump .eagle-body-group{ animation: eagleLift 0.6s var(--ease); }
-@keyframes eagleLift{
-  0%{ transform: translateY(0); } 45%{ transform: translateY(-16px) rotate(-4deg); } 100%{ transform: translateY(0); }
-}
-.pet-eagle.flying .eagle-wing-l{ animation-duration: .5s; }
-.pet-eagle.flying .eagle-wing-r{ animation-duration: .5s; }
-
-body[data-motion="minimal"] .cat-tail,
-body[data-motion="minimal"] .cat-eye-l,
-body[data-motion="minimal"] .cat-eye-r,
-body[data-motion="minimal"] .eagle-body-group,
-body[data-motion="minimal"] .eagle-wing-l,
-body[data-motion="minimal"] .eagle-wing-r,
-body[data-motion="minimal"] .eagle-eye-l,
-body[data-motion="minimal"] .eagle-eye-r{ animation: none !important; }
+body[data-motion="minimal"] .guy-body-group,
+body[data-motion="minimal"] .guy-arm-r,
+body[data-motion="minimal"] .guy-eye-l,
+body[data-motion="minimal"] .guy-eye-r{ animation: none !important; }
 @media (prefers-reduced-motion: reduce){
-  .cat-tail, .cat-eye-l, .cat-eye-r,
-  .eagle-body-group, .eagle-wing-l, .eagle-wing-r,
-  .eagle-eye-l, .eagle-eye-r{ animation: none !important; }
+  .guy-body-group, .guy-arm-r, .guy-eye-l, .guy-eye-r{ animation: none !important; }
 }
 
 .pet-bubble{
