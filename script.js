@@ -269,7 +269,7 @@ const DEFAULTS = {
     loadingScreen: true,
     animation: 'balanced',
     accent: '#ffb545',
-    pet: 'cat',
+    pet: 'guy',
     pet3D: true,
     petVoice: true,
     musicEnabled: true,
@@ -387,8 +387,8 @@ const DEFAULTS = {
     copyright: 'Tantsani Fadhil Ramadhan. Dibangun untuk naik panggung berikutnya.'
   },
   pets: {
-    cat: {
-      name: 'Kucing',
+    guy: {
+      name: 'Host',
       cooldown: 14,
       lines: {
         hero: 'Selamat datang di panggung.',
@@ -400,22 +400,7 @@ const DEFAULTS = {
         final: 'Tepuk tangan dulu, yuk.',
         contact: 'Mungkin dari sini koneksi baru dimulai.'
       },
-      click: ['Meong! Semangat ya 🐾', 'Start, Do, Finish!', 'Jangan lupa istirahat.', 'Aku jaga panggung ini.']
-    },
-    eagle: {
-      name: 'Elang',
-      cooldown: 14,
-      lines: {
-        hero: 'Panggungnya sudah menyala. Naik.',
-        about: 'Arah dulu, baru kecepatan.',
-        journey: 'Dari atas, semua jalur kelihatan.',
-        skills: 'Latihan yang tidak terlihat menentukan yang terlihat.',
-        projects: 'Karya bicara lebih keras dari niat.',
-        gallery: 'Rekam jejak tidak pernah bohong.',
-        final: 'Akhir satu babak, awal babak lain.',
-        contact: 'Kesempatan datang ke orang yang bisa dihubungi.'
-      },
-      click: ['Fokus. Lalu terbang.', 'Incar yang jauh.', 'Tenang dulu, lihat lebih luas.', 'Sayap ini untuk dipakai.']
+      click: ['Halo! Semangat ya 🎤', 'Start, Do, Finish!', 'Jangan lupa istirahat.', 'Aku temani kamu di panggung ini.']
     }
   }
 };
@@ -1350,9 +1335,14 @@ const PetVoice = (function(){
   async function pickVoice(){
     if(voicesCache) return voicesCache;
     const voices = await loadVoices();
-    /* prioritas: suara Bahasa Indonesia kalau tersedia di perangkat
-       pengunjung; kalau tidak ada, biarkan browser pakai default. */
-    voicesCache = voices.find(v => /^id/i.test(v.lang)) || voices[0] || null;
+    /* Web Speech API tidak punya cara resmi memilih gender suara,
+       jadi kita tebak dari namanya (banyak sistem menandai "Male"/
+       nama umum pria pada voice-nya). Kalau tidak ketemu, tetap
+       prioritaskan Bahasa Indonesia, dan pitch di say() yang
+       menurunkan nada supaya terdengar lebih maskulin. */
+    const isMaleName = v => /male|pria|david|damai|ardi|budi|arif/i.test(v.name) && !/female|wanita/i.test(v.name);
+    const idVoices = voices.filter(v => /^id/i.test(v.lang));
+    voicesCache = idVoices.find(isMaleName) || voices.find(isMaleName) || idVoices[0] || voices[0] || null;
     return voicesCache;
   }
 
@@ -1397,9 +1387,9 @@ const Pet3D = (function(){
   let failed = false;
 
   let renderer = null, scene = null, camera = null, canvas = null;
-  let groupCat = null, groupEagle = null, activeGroup = null;
+  let groupGuy = null, activeGroup = null;
   let pupils = [];               // mesh mata yang ikut melirik
-  let wingL = null, wingR = null, tail = null; // bagian yang dianimasikan
+  let arm2 = null;               // lengan kanan yang pegang mic, ikut goyang
   let rafId = null;
   let clock0 = 0;
 
@@ -1436,119 +1426,95 @@ const Pet3D = (function(){
   }
 
   /* ---------- kucing ---------- */
-  function buildCat(){
+  /* ---------- karakter pria (host / presenter) ---------- */
+  function buildGuy(){
     const g = new THREE.Group();
-    const dark = 0x171b23;
-    const line = 0x2a2f3a;
+    const suit = 0x171b23;     // jas gelap, senada tema panggung
+    const suitLine = 0x2a2f3a;
+    const skin = 0xe8b892;
+    const hair = 0x171008;
+    const shirt = 0xf3efe4;
 
-    const body = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 16), amberMat(dark));
-    body.scale.set(1, 0.82, 0.92);
-    body.position.set(0, -0.28, 0);
-    g.add(body);
-
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.72, 20, 16), amberMat(dark));
-    head.position.set(0, 0.62, 0.1);
-    g.add(head);
-
+    /* kaki */
     [-1, 1].forEach(side => {
-      const ear = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.42, 4), amberMat(dark));
-      ear.position.set(side * 0.42, 1.14, 0.08);
-      ear.rotation.z = side * -0.28;
-      ear.rotation.y = Math.PI / 4;
-      g.add(ear);
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.11, 0.9, 10), amberMat(suit, { roughness: 0.6 }));
+      leg.position.set(side * 0.2, -1.15, 0);
+      g.add(leg);
     });
 
+    /* badan / jas — dibuat meruncing dari bahu ke pinggang */
+    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.46, 1.15, 16), amberMat(suit, { roughness: 0.55 }));
+    torso.position.set(0, -0.35, 0);
+    g.add(torso);
+
+    /* kemeja & dasi kecil di dada */
+    const collar = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.28, 4), amberMat(shirt, { roughness: 0.5 }));
+    collar.position.set(0, 0.18, 0.42);
+    collar.rotation.x = Math.PI;
+    g.add(collar);
+    const tie = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.32, 0.03), amberMat(0xffb545, { roughness: 0.4 }));
+    tie.position.set(0, 0.02, 0.48);
+    g.add(tie);
+
+    /* kepala */
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.52, 20, 16), amberMat(skin, { roughness: 0.55 }));
+    head.position.set(0, 0.68, 0.05);
+    g.add(head);
+
+    /* rambut — separuh bola di atas kepala */
+    const hairCap = new THREE.Mesh(new THREE.SphereGeometry(0.55, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), amberMat(hair, { roughness: 0.7 }));
+    hairCap.position.set(0, 0.78, 0.02);
+    g.add(hairCap);
+
+    /* mata */
     pupils = [];
     [-1, 1].forEach(side => {
-      const socket = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 10), amberMat(0xf3efe4, { roughness: 0.3 }));
-      socket.position.set(side * 0.3, 0.68, 0.62);
-      g.add(socket);
-      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), amberMat(0x171008, { roughness: 0.2 }));
-      pupil.position.set(side * 0.3, 0.68, 0.72);
+      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.055, 10, 8), amberMat(0x171008, { roughness: 0.2 }));
+      pupil.position.set(side * 0.19, 0.7, 0.46);
       pupil.userData.baseX = pupil.position.x;
       g.add(pupil);
       pupils.push(pupil);
     });
 
-    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.07, 8), amberMat(0xffb545, { roughness: 0.3 }));
-    nose.position.set(0, 0.5, 0.78);
-    nose.rotation.x = Math.PI / 2;
-    g.add(nose);
+    /* lengan kiri (santai di samping) */
+    const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.09, 0.75, 10), amberMat(suit, { roughness: 0.6 }));
+    armL.position.set(-0.62, -0.15, 0);
+    armL.rotation.z = 0.18;
+    g.add(armL);
 
-    /* ekor melengkung pakai tabung sepanjang kurva */
-    const curve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(0, -0.5, -0.85),
-      new THREE.Vector3(0.1, -0.1, -1.25),
-      new THREE.Vector3(0.55, 0.55, -1.15),
-      new THREE.Vector3(0.85, 0.95, -0.7)
-    ]);
-    tail = new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.09, 8, false), amberMat(0xf3efe4, { roughness: 0.6 }));
-    g.add(tail);
+    /* lengan kanan — terangkat memegang mic */
+    arm2 = new THREE.Group();
+    const upperArmR = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.1, 0.5, 10), amberMat(suit, { roughness: 0.6 }));
+    upperArmR.position.set(0, 0.02, 0);
+    upperArmR.rotation.z = -0.9;
+    arm2.add(upperArmR);
+    const foreArmR = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.09, 0.48, 10), amberMat(suit, { roughness: 0.6 }));
+    foreArmR.position.set(0.34, 0.42, 0);
+    foreArmR.rotation.z = -1.75;
+    arm2.add(foreArmR);
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 10), amberMat(skin, { roughness: 0.55 }));
+    hand.position.set(0.32, 0.75, 0);
+    arm2.add(hand);
+    /* mikrofon — properti ciri khas "public speaking" */
+    const micHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.32, 10), amberMat(0x666c7a, { roughness: 0.4, metalness: 0.5 }));
+    micHandle.position.set(0.32, 0.98, 0);
+    arm2.add(micHandle);
+    const micHead = new THREE.Mesh(new THREE.SphereGeometry(0.13, 14, 10), amberMat(0x12151b, { roughness: 0.35, metalness: 0.3 }));
+    micHead.position.set(0.32, 1.16, 0);
+    arm2.add(micHead);
+    arm2.position.set(0.55, -0.05, 0.05);
+    g.add(arm2);
 
-    void line;
-    return g;
-  }
-
-  /* ---------- elang ---------- */
-  function buildEagle(){
-    const g = new THREE.Group();
-    const dark = 0x12151b;
-    const wing = 0x171b23;
-
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.62, 18, 14), amberMat(dark));
-    body.scale.set(0.85, 1.25, 0.85);
-    body.position.set(0, -0.15, 0);
-    g.add(body);
-
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.4, 18, 14), amberMat(0xf3efe4, { roughness: 0.5 }));
-    head.position.set(0, 0.72, 0.05);
-    g.add(head);
-
-    const beak = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.32, 10), amberMat(0xff9a2e, { roughness: 0.35 }));
-    beak.position.set(0, 0.66, 0.42);
-    beak.rotation.x = Math.PI / 2.1;
-    g.add(beak);
-
-    pupils = [];
-    [-1, 1].forEach(side => {
-      const socket = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 10), amberMat(0x12151b, { roughness: 0.3 }));
-      socket.position.set(side * 0.22, 0.78, 0.32);
-      g.add(socket);
-      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8), amberMat(0xffb545, { roughness: 0.2, emissive: 0x552d00, emissiveIntensity: 0.3 }));
-      pupil.position.set(side * 0.22, 0.78, 0.38);
-      pupil.userData.baseX = pupil.position.x;
-      g.add(pupil);
-      pupils.push(pupil);
-    });
-
-    function makeWing(side){
-      const shape = new THREE.Shape();
-      shape.moveTo(0, 0);
-      shape.quadraticCurveTo(0.55 * side, 0.15, 1.05 * side, -0.05);
-      shape.quadraticCurveTo(0.6 * side, -0.22, 0, -0.18);
-      shape.closePath();
-      const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.05, bevelEnabled: false });
-      const wingMesh = new THREE.Mesh(geo, amberMat(wing, { roughness: 0.6, side: THREE.DoubleSide }));
-      wingMesh.position.set(side * 0.32, 0.1, -0.05);
-      return wingMesh;
-    }
-    wingL = makeWing(-1); g.add(wingL);
-    wingR = makeWing(1); g.add(wingR);
-
-    const tailMesh = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.5, 4), amberMat(wing, { roughness: 0.6 }));
-    tailMesh.position.set(0, -0.55, -0.55);
-    tailMesh.rotation.x = Math.PI / 2.3;
-    g.add(tailMesh);
-
+    void suitLine;
     return g;
   }
 
   /* ---------- scene setup ---------- */
   function buildScene(){
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(32, 1, 0.1, 20);
-    camera.position.set(0, 0.35, 5.4);
-    camera.lookAt(0, 0.1, 0);
+    camera = new THREE.PerspectiveCamera(30, 1, 0.1, 20);
+    camera.position.set(0, 0.15, 5.8);
+    camera.lookAt(0, -0.1, 0);
 
     const ambient = new THREE.AmbientLight(0x8a8f9c, 0.65);
     scene.add(ambient);
@@ -1562,12 +1528,9 @@ const Pet3D = (function(){
     fill.position.set(-2, 1, -2);
     scene.add(fill);
 
-    groupCat = buildCat();
-    groupEagle = buildEagle();
-    groupEagle.visible = false;
-    scene.add(groupCat);
-    scene.add(groupEagle);
-    activeGroup = groupCat;
+    groupGuy = buildGuy();
+    scene.add(groupGuy);
+    activeGroup = groupGuy;
 
     renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -1619,13 +1582,9 @@ const Pet3D = (function(){
     /* napas halus naik-turun */
     activeGroup.position.y = Math.sin(t * 1.3) * 0.05;
 
-    if(activeGroup === groupEagle && wingL && wingR){
-      const flap = Math.sin(t * (activeGroup.userData.flying ? 7 : 2.4)) * (activeGroup.userData.flying ? 0.5 : 0.16);
-      wingL.rotation.z = flap;
-      wingR.rotation.z = -flap;
-    }
-    if(activeGroup === groupCat && tail){
-      tail.rotation.y = Math.sin(t * 1.6) * 0.18;
+    /* lengan mic bergoyang halus, seperti sedang menjelaskan sesuatu */
+    if(arm2){
+      arm2.rotation.z = Math.sin(t * 1.1) * 0.06;
     }
 
     renderer.render(scene, camera);
@@ -1639,7 +1598,7 @@ const Pet3D = (function(){
       const rect = canvas.getBoundingClientRect();
       const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       pupils.forEach(p => {
-        if(p.userData.baseX !== undefined) p.position.x = p.userData.baseX + nx * 0.05;
+        if(p.userData.baseX !== undefined) p.position.x = p.userData.baseX + nx * 0.04;
       });
     });
   }
@@ -1658,14 +1617,7 @@ const Pet3D = (function(){
     requestAnimationFrame(bounce);
   }
 
-  function setFlying(on){ if(groupEagle) groupEagle.userData.flying = !!on; }
-
-  function setPet(name){
-    if(!ready) return;
-    activeGroup = (name === 'eagle') ? groupEagle : groupCat;
-    groupCat.visible = activeGroup === groupCat;
-    groupEagle.visible = activeGroup === groupEagle;
-  }
+  function setPet(){ /* cuma satu karakter sekarang — tidak ada yang perlu diganti */ }
 
   let clickHandler = null;
   function setClickHandler(fn){ clickHandler = fn; }
@@ -1708,39 +1660,34 @@ const Pet3D = (function(){
   }
 
   return {
-    init, setPet, hop, setFlying, setClickHandler,
+    init, setPet, hop, setClickHandler,
     get ready(){ return ready; },
     get failed(){ return failed; }
   };
 })();
 
 const Pet = (function(){
-  let current = 'cat';
+  const current = 'guy';
   let bubbleTimer = null;
   let lastSpoke = 0;
   let clickCount = 0;
   let idleTimer = null;
   let mode3D = false;
 
-  function el(){ return current === 'eagle' ? $('#petEagle') : $('#petCat'); }
+  function el(){ return $('#petGuy'); }
   function config(){ return (DATA.pets && DATA.pets[current]) || { lines: {}, click: [], cooldown: 14 }; }
 
-  function setPet(name){
-    current = (name === 'eagle') ? 'eagle' : 'cat';
-    const cat = $('#petCat');
-    const eagle = $('#petEagle');
+  function setPet(){
+    const guy = $('#petGuy');
     if(mode3D){
       /* mode 3D aktif: SVG lama disembunyikan total, canvas 3D yang tampil */
-      if(cat) cat.hidden = true;
-      if(eagle) eagle.hidden = true;
-      Pet3D.setPet(current);
+      if(guy) guy.hidden = true;
     }else{
-      if(cat) cat.hidden = current !== 'cat';
-      if(eagle) eagle.hidden = current !== 'eagle';
+      if(guy) guy.hidden = false;
     }
     const node = el();
     if(node){
-      const label = config().name || (current === 'eagle' ? 'Elang' : 'Kucing');
+      const label = config().name || 'Host';
       node.setAttribute('aria-label', 'Maskot ' + label + ' — klik untuk berinteraksi');
     }
   }
@@ -1758,7 +1705,7 @@ const Pet = (function(){
     bubble.classList.add('show');
     clearTimeout(bubbleTimer);
     bubbleTimer = setTimeout(() => bubble.classList.remove('show'), 3400);
-    PetVoice.speak(text, current === 'cat' ? 1.35 : 0.8);
+    PetVoice.speak(text, 0.82); // pitch lebih rendah — suara maskulin
   }
 
   function hop(){
@@ -1826,14 +1773,14 @@ const Pet = (function(){
       mode3D = false;
     }
 
-    setPet((DATA.settings && DATA.settings.pet) || 'cat');
-    [$('#petCat'), $('#petEagle')].forEach(node => {
-      if(!node) return;
-      node.addEventListener('click', onClick);
-      node.addEventListener('keydown', e => {
+    setPet();
+    const guy = $('#petGuy');
+    if(guy){
+      guy.addEventListener('click', onClick);
+      guy.addEventListener('keydown', e => {
         if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); onClick(); }
       });
-    });
+    }
     trackCursor();
     idleLoop();
   }
@@ -2445,7 +2392,7 @@ function panelProjects(){
 }
 
 function panelPet(){
-  const key = (DATA.settings && DATA.settings.pet) || 'cat';
+  const key = 'guy';
   const pet = DATA.pets[key] || {};
   const lines = pet.lines || {};
   const sections = [
@@ -2454,38 +2401,30 @@ function panelPet(){
   ];
   return `
     <div class="panel-section">
-      <h4>Pilih pet</h4>
-      <div class="seg">
-        <button type="button" data-act="pet-set" data-pet="cat" aria-pressed="${key === 'cat'}">🐱 CAT</button>
-        <button type="button" data-act="pet-set" data-pet="eagle" aria-pressed="${key === 'eagle'}">🦅 EAGLE</button>
-      </div>
-      <p class="panel-hint">Pergantian langsung terlihat di pojok layar — itu pratinjaunya.</p>
-    </div>
-    <div class="panel-section">
       <h4>Model 3D</h4>
       <div class="panel-row">
-        <span class="rl">Tampilkan pet sebagai model 3D
+        <span class="rl">Tampilkan sebagai model 3D
           <span class="rs">${Pet.is3D ? 'Aktif sekarang — bisa diputar dengan drag' : (DATA.settings.pet3D === false ? 'Dimatikan manual' : 'Tidak aktif di perangkat ini (fallback ke gambar 2D)')}</span>
         </span>
         <button class="switch" type="button" role="switch" data-act="toggle-pet-3d"
-          aria-checked="${DATA.settings.pet3D !== false ? 'true' : 'false'}" aria-label="Model 3D pet"></button>
+          aria-checked="${DATA.settings.pet3D !== false ? 'true' : 'false'}" aria-label="Model 3D"></button>
       </div>
-      <p class="panel-hint">Perubahan ini butuh refresh halaman untuk terlihat. Kalau dimatikan, pet balik ke ilustrasi 2D biasa.</p>
+      <p class="panel-hint">Perubahan ini butuh refresh halaman untuk terlihat. Kalau dimatikan, balik ke ilustrasi 2D biasa.</p>
     </div>
     <div class="panel-section">
-      <h4>Suara pet</h4>
+      <h4>Suara</h4>
       <div class="panel-row">
         <span class="rl">Ucapkan dialog dengan suara
           <span class="rs">${PetVoice.supported ? 'Text-to-speech bawaan browser, tanpa berkas audio' : 'Browser ini tidak mendukung text-to-speech'}</span>
         </span>
         <button class="switch" type="button" role="switch" data-act="toggle-pet-voice"
-          aria-checked="${DATA.settings.petVoice !== false ? 'true' : 'false'}" aria-label="Suara pet" ${PetVoice.supported ? '' : 'disabled'}></button>
+          aria-checked="${DATA.settings.petVoice !== false ? 'true' : 'false'}" aria-label="Suara" ${PetVoice.supported ? '' : 'disabled'}></button>
       </div>
-      <p class="panel-hint">Kualitas & pilihan suara tergantung perangkat pengunjung — sebagian HP/laptop belum punya suara Bahasa Indonesia, otomatis pakai suara default.</p>
+      <p class="panel-hint">Kualitas & pilihan suara tergantung perangkat pengunjung — sebagian HP/laptop belum punya suara pria Bahasa Indonesia, otomatis pakai suara default (nada tetap dibuat lebih rendah/maskulin).</p>
     </div>
     <div class="panel-section">
       <h4>Identitas</h4>
-      ${field('Nama pet', 'pets.' + key + '.name', { render: 'pet' })}
+      ${field('Nama', 'pets.' + key + '.name', { render: 'pet' })}
       ${field('Jeda bicara (detik)', 'pets.' + key + '.cooldown', { type: 'number' })}
     </div>
     <div class="panel-section">
@@ -3027,15 +2966,8 @@ async function handleAction(act, el, event){
     }
 
     /* ---------- pet ---------- */
-    case 'pet-set': {
-      DATA.settings.pet = el.dataset.pet;
-      saveNow(); Pet.setPet(DATA.settings.pet); renderPanel();
-      Pet.say((DATA.pets[DATA.settings.pet].lines || {}).hero || 'Halo.', true);
-      return;
-    }
     case 'pet-test': {
-      const key = DATA.settings.pet;
-      const lines = (DATA.pets[key] || {}).click || [];
+      const lines = (DATA.pets.guy || {}).click || [];
       Pet.say(lines.length ? lines[Math.floor(Math.random() * lines.length)] : 'Halo!', true);
       return;
     }
@@ -3256,9 +3188,9 @@ const COMMANDS = [
   { key: 'projects', label: 'Tambah proyek',           run: () => openProjectForm(null) },
   { key: 'projects', label: 'Kelola proyek',           run: () => openPanel('projects') },
   { key: 'gallery',  label: 'Buka galeri',             run: () => scrollToId('gallery') },
-  { key: 'pet',      label: 'Ganti pet',               run: () => openPanel('pet') },
   { key: 'pet',      label: 'Sunting dialog pet',      run: () => openPanel('pet') },
   { key: 'pet',      label: 'Suara pet ON / OFF',      run: () => openPanel('pet') },
+  { key: 'pet',      label: 'Model 3D ON / OFF',       run: () => openPanel('pet') },
   { key: 'contact',  label: 'Sunting kontak & tautan', run: () => openPanel('content') },
   { key: 'design',   label: 'Warna aksen & animasi',   run: () => openPanel('design') },
   { key: 'design',   label: 'Loading screen ON / OFF', run: () => openPanel('design') },
@@ -3382,7 +3314,7 @@ function initDelegation(){
         const render = el.dataset.render;
         if(render === 'hero'){ renderHeroName(); renderPortrait(); }
         if(render === 'contact') renderContact();
-        if(render === 'pet') Pet.setPet(DATA.settings.pet);
+        if(render === 'pet') Pet.setPet();
         if(render === 'music'){
           Music.setVolume(value);
           const lbl = el.closest('.form-field').querySelector('label');
