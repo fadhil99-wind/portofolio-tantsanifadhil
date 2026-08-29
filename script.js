@@ -1465,17 +1465,34 @@ const Music = (function(){
     [98.00,  123.47, 146.83, 196.00]    // G6
   ];
 
+  const MUSIC_URL = 'music/theme.mp3?v=' + Date.now(); // cache-busting biar tidak nyangkut ke 404 lama
+
   function checkCustomFile(){
     if(customAvailable !== null) return Promise.resolve(customAvailable);
     return new Promise(resolve => {
       const audio = new Audio();
       let done = false;
-      const finish = ok => { if(done) return; done = true; customAvailable = ok; resolve(ok); };
-      audio.addEventListener('canplaythrough', () => finish(true), { once: true });
-      audio.addEventListener('error', () => finish(false), { once: true });
-      setTimeout(() => finish(false), 2500); // hosting tanpa file ini: jangan menggantung
+      const finish = ok => {
+        if(done) return;
+        done = true;
+        customAvailable = ok;
+        audio.removeEventListener('loadedmetadata', onOk);
+        audio.removeEventListener('canplay', onOk);
+        audio.removeEventListener('error', onErr);
+        resolve(ok);
+      };
+      /* 'loadedmetadata'/'canplay' jauh lebih cepat & konsisten daripada
+         'canplaythrough' — cukup tahu durasinya sudah kebaca, tidak perlu
+         menunggu seluruh berkas ter-buffer dulu. */
+      const onOk = () => finish(true);
+      const onErr = () => finish(false);
+      audio.addEventListener('loadedmetadata', onOk, { once: true });
+      audio.addEventListener('canplay', onOk, { once: true });
+      audio.addEventListener('error', onErr, { once: true });
+      setTimeout(() => finish(false), 6000); // beri ruang untuk koneksi lambat
       audio.preload = 'auto';
-      audio.src = 'music/theme.mp3';
+      audio.src = MUSIC_URL;
+      audio.load();
     });
   }
 
@@ -1574,7 +1591,7 @@ const Music = (function(){
     const hasCustom = await checkCustomFile();
     if(hasCustom){
       if(!customEl){
-        customEl = new Audio('music/theme.mp3');
+        customEl = new Audio(MUSIC_URL);
         customEl.loop = true;
       }
       customEl.volume = volumeToGain() * 2; // <audio>.volume 0..1, skala berbeda dari WebAudio gain
