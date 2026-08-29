@@ -819,7 +819,13 @@ body.panel-open .music-toggle{ opacity:0; pointer-events:none; }
 /* =========================================================
    14. PET STAGE
 ========================================================= */
-.pet-stage{ position: fixed; right: 18px; bottom: 18px; z-index: 90; width: 88px; height: 88px; }
+.pet-stage{ position: fixed; right: 18px; bottom: 18px; z-index: 90; width: 96px; height: 96px; }
+.pet-3d-canvas{
+  position:absolute; inset:-14px; width: calc(100% + 28px); height: calc(100% + 28px);
+  cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent;
+}
+.pet-3d-canvas:active{ cursor: grabbing; }
+.pet-3d-canvas[hidden]{ display:none; }
 .pet{
   position:absolute; inset:0; cursor:pointer; user-select:none;
   -webkit-tap-highlight-color: transparent;
@@ -1169,6 +1175,7 @@ body.preview-mode [data-edit]::after{ content:none !important; }
   .jp-card{ padding: 18px 18px; }
 
   .pet-stage{ width:68px; height:68px; right:12px; bottom: 14px; }
+  .pet-3d-canvas{ inset:-10px; width: calc(100% + 20px); height: calc(100% + 20px); }
   .pet-bubble{ right: 74px; bottom: 30px; max-width: 150px; font-size:11px; }
 
   .site-footer{ padding-bottom: 130px; }
