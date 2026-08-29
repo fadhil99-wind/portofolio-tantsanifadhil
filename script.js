@@ -2131,6 +2131,24 @@ function panelSystem(){
         <button class="btn btn-primary btn-sm" type="button" data-act="publish">Unduh data.json</button>
       </div>
     </div>
+
+    <div class="panel-section">
+      <h4>Sinkronisasi antar perangkat</h4>
+      <p class="panel-hint" style="margin-top:0;">
+        Tiap perangkat (HP, laptop) menyimpan suntingannya <b>masing-masing secara terpisah</b> —
+        tidak otomatis nyambung. Kalau kamu baru publish dari perangkat lain, perangkat ini
+        akan tetap memakai suntingannya sendiri sampai kamu tarik versi terbarunya:
+      </p>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" type="button" data-act="pull-published">Tarik versi terpublikasi</button>
+      </div>
+      <p class="panel-hint">
+        Ini akan <b>mengganti</b> semua suntingan lokal di perangkat ini (termasuk foto) dengan
+        isi <code>data.json</code> yang sedang aktif di hosting. Pastikan sudah publish dari
+        perangkat yang benar sebelum menariknya di sini.
+      </p>
+    </div>
+
     <div class="panel-section">
       <h4>Cadangan</h4>
       <div class="btn-row">
@@ -2621,6 +2639,7 @@ async function handleAction(act, el, event){
 
     /* ---------- system ---------- */
     case 'publish': { downloadJson('data.json'); return; }
+    case 'pull-published': { pullPublished(); return; }
     case 'export': { downloadJson('portfolio-backup.json'); return; }
     case 'import': { importBackup(); return; }
     case 'hash-pass': {
@@ -2685,6 +2704,48 @@ function downloadJson(filename){
   toast('✓ ' + filename + ' diunduh (' + mb + ' MB)');
 }
 
+/* Tarik data.json yang sedang live di hosting dan jadikan itu sumber
+   kebenaran untuk perangkat ini — menimpa suntingan lokal perangkat ini.
+   Dipakai saat perangkat A publish, lalu perangkat B mau ikut menyesuaikan
+   diri tanpa harus di-reset total. */
+async function pullPublished(){
+  let json = null;
+  try{
+    const res = await fetch('data.json', { cache: 'no-store' });
+    if(!res.ok) throw new Error('data.json belum ada di hosting (status ' + res.status + ')');
+    json = await res.json();
+  }catch(err){
+    toast('Gagal mengambil data.json: ' + err.message, true);
+    return;
+  }
+  if(!json || !json.data){
+    toast('data.json ditemukan tapi strukturnya tidak dikenali.', true);
+    return;
+  }
+
+  const ok = await confirmAction({
+    title: 'Tarik versi terpublikasi',
+    text: 'Semua suntingan lokal di perangkat ini (termasuk foto yang belum dipublish) akan diganti dengan isi data.json yang sedang aktif di hosting.',
+    okLabel: 'Timpa dengan versi terpublikasi',
+    danger: true
+  });
+  if(!ok) return;
+
+  /* Berbeda dari boot() biasa: di sini publishedData JADI satu-satunya
+     sumber (tidak di-merge dengan local lama), supaya suntingan lokal
+     yang basi benar-benar tergantikan, bukan cuma ditambal. */
+  DATA = deepMerge(clone(DEFAULTS), json.data);
+  if(json.images){
+    const ids = Object.keys(json.images);
+    for(const id of ids){ await Media.put(id, json.images[id]); }
+  }
+  saveNow();
+  renderAll();
+  observeReveals();
+  if(activePanel) renderPanel();
+  toast('✓ Perangkat ini sekarang memakai versi terpublikasi');
+}
+
 function importBackup(){
   const input = document.createElement('input');
   input.type = 'file';
@@ -2744,6 +2805,7 @@ const COMMANDS = [
   { key: 'music',    label: 'Musik latar & volume',    run: () => openPanel('design') },
   { key: 'music',    label: 'Putar / jeda musik',      run: () => Music.toggle() },
   { key: 'system',   label: 'Publikasikan (data.json)',run: () => handleAction('publish', document.body) },
+  { key: 'system',   label: 'Tarik versi terpublikasi',run: () => pullPublished() },
   { key: 'system',   label: 'Export cadangan',         run: () => handleAction('export', document.body) },
   { key: 'system',   label: 'Import cadangan',         run: () => importBackup() },
   { key: 'view',     label: 'Preview sebagai visitor', run: () => setPreviewMode(true) },
