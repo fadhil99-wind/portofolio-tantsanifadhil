@@ -270,6 +270,7 @@ const DEFAULTS = {
     animation: 'balanced',
     accent: '#ffb545',
     pet: 'cat',
+    petVoice: true,
     musicEnabled: true,
     musicVolume: 45
   },
@@ -1322,6 +1323,60 @@ function confirmAction(options){
 }
 
 /* =========================================================
+   9b. SUARA PET — text-to-speech bawaan browser
+   Tidak pakai berkas audio apa pun; suara disintesis langsung
+   oleh browser lewat Web Speech API (speechSynthesis), jadi
+   otomatis bebas hak cipta dan tanpa berkas tambahan.
+========================================================= */
+const PetVoice = (function(){
+  const supported = 'speechSynthesis' in window;
+  let voicesCache = null;
+
+  function loadVoices(){
+    if(!supported) return Promise.resolve([]);
+    const existing = window.speechSynthesis.getVoices();
+    if(existing && existing.length) return Promise.resolve(existing);
+    return new Promise(resolve => {
+      const onChange = () => {
+        window.speechSynthesis.removeEventListener('voiceschanged', onChange);
+        resolve(window.speechSynthesis.getVoices());
+      };
+      window.speechSynthesis.addEventListener('voiceschanged', onChange);
+      setTimeout(() => resolve(window.speechSynthesis.getVoices()), 1200);
+    });
+  }
+
+  async function pickVoice(){
+    if(voicesCache) return voicesCache;
+    const voices = await loadVoices();
+    /* prioritas: suara Bahasa Indonesia kalau tersedia di perangkat
+       pengunjung; kalau tidak ada, biarkan browser pakai default. */
+    voicesCache = voices.find(v => /^id/i.test(v.lang)) || voices[0] || null;
+    return voicesCache;
+  }
+
+  async function speak(text, pitch){
+    if(!supported || !text) return;
+    if(!(DATA.settings && DATA.settings.petVoice !== false)) return;
+    try{
+      window.speechSynthesis.cancel(); // hentikan ucapan sebelumnya biar tidak menumpuk
+      const utter = new SpeechSynthesisUtterance(text);
+      const voice = await pickVoice();
+      if(voice) utter.voice = voice;
+      utter.lang = voice ? voice.lang : 'id-ID';
+      utter.pitch = pitch || 1;
+      utter.rate = 1.02;
+      utter.volume = 0.9;
+      window.speechSynthesis.speak(utter);
+    }catch(err){ /* diabaikan — suara cuma pemanis, bukan fitur inti */ }
+  }
+
+  function stop(){ if(supported) window.speechSynthesis.cancel(); }
+
+  return { speak, stop, get supported(){ return supported; } };
+})();
+
+/* =========================================================
    10. PET SYSTEM
 ========================================================= */
 const Pet = (function(){
@@ -1360,6 +1415,7 @@ const Pet = (function(){
     bubble.classList.add('show');
     clearTimeout(bubbleTimer);
     bubbleTimer = setTimeout(() => bubble.classList.remove('show'), 3400);
+    PetVoice.speak(text, current === 'cat' ? 1.35 : 0.8);
   }
 
   function hop(){
@@ -2054,6 +2110,17 @@ function panelPet(){
       <p class="panel-hint">Pergantian langsung terlihat di pojok layar — itu pratinjaunya.</p>
     </div>
     <div class="panel-section">
+      <h4>Suara pet</h4>
+      <div class="panel-row">
+        <span class="rl">Ucapkan dialog dengan suara
+          <span class="rs">${PetVoice.supported ? 'Text-to-speech bawaan browser, tanpa berkas audio' : 'Browser ini tidak mendukung text-to-speech'}</span>
+        </span>
+        <button class="switch" type="button" role="switch" data-act="toggle-pet-voice"
+          aria-checked="${DATA.settings.petVoice !== false ? 'true' : 'false'}" aria-label="Suara pet" ${PetVoice.supported ? '' : 'disabled'}></button>
+      </div>
+      <p class="panel-hint">Kualitas & pilihan suara tergantung perangkat pengunjung — sebagian HP/laptop belum punya suara Bahasa Indonesia, otomatis pakai suara default.</p>
+    </div>
+    <div class="panel-section">
       <h4>Identitas</h4>
       ${field('Nama pet', 'pets.' + key + '.name', { render: 'pet' })}
       ${field('Jeda bicara (detik)', 'pets.' + key + '.cooldown', { type: 'number' })}
@@ -2636,6 +2703,12 @@ async function handleAction(act, el, event){
       saveNow(); Music.applyVisibility(); renderPanel();
       return;
     }
+    case 'toggle-pet-voice': {
+      DATA.settings.petVoice = DATA.settings.petVoice === false ? true : false;
+      if(!DATA.settings.petVoice) PetVoice.stop();
+      saveNow(); renderPanel();
+      return;
+    }
     case 'music-test': {
       Music.toggle();
       return;
@@ -2816,6 +2889,7 @@ const COMMANDS = [
   { key: 'gallery',  label: 'Buka galeri',             run: () => scrollToId('gallery') },
   { key: 'pet',      label: 'Ganti pet',               run: () => openPanel('pet') },
   { key: 'pet',      label: 'Sunting dialog pet',      run: () => openPanel('pet') },
+  { key: 'pet',      label: 'Suara pet ON / OFF',      run: () => openPanel('pet') },
   { key: 'contact',  label: 'Sunting kontak & tautan', run: () => openPanel('content') },
   { key: 'design',   label: 'Warna aksen & animasi',   run: () => openPanel('design') },
   { key: 'design',   label: 'Loading screen ON / OFF', run: () => openPanel('design') },
