@@ -270,6 +270,7 @@ const DEFAULTS = {
     animation: 'balanced',
     accent: '#ffb545',
     pet: 'cat',
+    pet3D: true,
     petVoice: true,
     musicEnabled: true,
     musicVolume: 45
@@ -1379,12 +1380,347 @@ const PetVoice = (function(){
 /* =========================================================
    10. PET SYSTEM
 ========================================================= */
+/* =========================================================
+   9c. PET 3D — model low-poly asli, dibangun dari geometri
+   primitif Three.js (bukan file model dari luar), jadi tidak
+   ada isu lisensi/hak cipta apa pun.
+
+   Kalau Three.js gagal dimuat (jaringan/ad-blocker) atau WebGL
+   tidak didukung perangkat, modul ini diam-diam menyerah dan
+   SVG 2D lama tetap tampil sebagai cadangan — pet tidak pernah
+   hilang sama sekali dari pengunjung.
+========================================================= */
+const Pet3D = (function(){
+  const THREE_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+  let THREE = null;
+  let ready = false;
+  let failed = false;
+
+  let renderer = null, scene = null, camera = null, canvas = null;
+  let groupCat = null, groupEagle = null, activeGroup = null;
+  let pupils = [];               // mesh mata yang ikut melirik
+  let wingL = null, wingR = null, tail = null; // bagian yang dianimasikan
+  let rafId = null;
+  let clock0 = 0;
+
+  /* rotasi manual (drag) + auto-rotate idle */
+  let rotY = 0, rotX = 0;
+  let dragging = false, dragMoved = false, lastX = 0, lastY = 0;
+  let userRotTimer = null;       // jeda sebelum auto-rotate lanjut lagi setelah di-drag
+
+  function loadThree(){
+    if(window.THREE){ THREE = window.THREE; return Promise.resolve(true); }
+    return new Promise(resolve => {
+      const s = document.createElement('script');
+      s.src = THREE_SRC;
+      s.async = true;
+      s.onload = () => { THREE = window.THREE; resolve(!!THREE); };
+      s.onerror = () => resolve(false);
+      document.head.appendChild(s);
+      setTimeout(() => resolve(!!window.THREE), 6000);
+    });
+  }
+
+  function supportsWebGL(){
+    try{
+      const test = document.createElement('canvas');
+      return !!(window.WebGLRenderingContext && (test.getContext('webgl') || test.getContext('experimental-webgl')));
+    }catch(e){ return false; }
+  }
+
+  function amberMat(hex, opts){
+    opts = opts || {};
+    return new THREE.MeshStandardMaterial(Object.assign({
+      color: hex, roughness: 0.55, metalness: 0.08
+    }, opts));
+  }
+
+  /* ---------- kucing ---------- */
+  function buildCat(){
+    const g = new THREE.Group();
+    const dark = 0x171b23;
+    const line = 0x2a2f3a;
+
+    const body = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 16), amberMat(dark));
+    body.scale.set(1, 0.82, 0.92);
+    body.position.set(0, -0.28, 0);
+    g.add(body);
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.72, 20, 16), amberMat(dark));
+    head.position.set(0, 0.62, 0.1);
+    g.add(head);
+
+    [-1, 1].forEach(side => {
+      const ear = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.42, 4), amberMat(dark));
+      ear.position.set(side * 0.42, 1.14, 0.08);
+      ear.rotation.z = side * -0.28;
+      ear.rotation.y = Math.PI / 4;
+      g.add(ear);
+    });
+
+    pupils = [];
+    [-1, 1].forEach(side => {
+      const socket = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 10), amberMat(0xf3efe4, { roughness: 0.3 }));
+      socket.position.set(side * 0.3, 0.68, 0.62);
+      g.add(socket);
+      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), amberMat(0x171008, { roughness: 0.2 }));
+      pupil.position.set(side * 0.3, 0.68, 0.72);
+      pupil.userData.baseX = pupil.position.x;
+      g.add(pupil);
+      pupils.push(pupil);
+    });
+
+    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.07, 8), amberMat(0xffb545, { roughness: 0.3 }));
+    nose.position.set(0, 0.5, 0.78);
+    nose.rotation.x = Math.PI / 2;
+    g.add(nose);
+
+    /* ekor melengkung pakai tabung sepanjang kurva */
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, -0.5, -0.85),
+      new THREE.Vector3(0.1, -0.1, -1.25),
+      new THREE.Vector3(0.55, 0.55, -1.15),
+      new THREE.Vector3(0.85, 0.95, -0.7)
+    ]);
+    tail = new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.09, 8, false), amberMat(0xf3efe4, { roughness: 0.6 }));
+    g.add(tail);
+
+    void line;
+    return g;
+  }
+
+  /* ---------- elang ---------- */
+  function buildEagle(){
+    const g = new THREE.Group();
+    const dark = 0x12151b;
+    const wing = 0x171b23;
+
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.62, 18, 14), amberMat(dark));
+    body.scale.set(0.85, 1.25, 0.85);
+    body.position.set(0, -0.15, 0);
+    g.add(body);
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.4, 18, 14), amberMat(0xf3efe4, { roughness: 0.5 }));
+    head.position.set(0, 0.72, 0.05);
+    g.add(head);
+
+    const beak = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.32, 10), amberMat(0xff9a2e, { roughness: 0.35 }));
+    beak.position.set(0, 0.66, 0.42);
+    beak.rotation.x = Math.PI / 2.1;
+    g.add(beak);
+
+    pupils = [];
+    [-1, 1].forEach(side => {
+      const socket = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 10), amberMat(0x12151b, { roughness: 0.3 }));
+      socket.position.set(side * 0.22, 0.78, 0.32);
+      g.add(socket);
+      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8), amberMat(0xffb545, { roughness: 0.2, emissive: 0x552d00, emissiveIntensity: 0.3 }));
+      pupil.position.set(side * 0.22, 0.78, 0.38);
+      pupil.userData.baseX = pupil.position.x;
+      g.add(pupil);
+      pupils.push(pupil);
+    });
+
+    function makeWing(side){
+      const shape = new THREE.Shape();
+      shape.moveTo(0, 0);
+      shape.quadraticCurveTo(0.55 * side, 0.15, 1.05 * side, -0.05);
+      shape.quadraticCurveTo(0.6 * side, -0.22, 0, -0.18);
+      shape.closePath();
+      const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.05, bevelEnabled: false });
+      const wingMesh = new THREE.Mesh(geo, amberMat(wing, { roughness: 0.6, side: THREE.DoubleSide }));
+      wingMesh.position.set(side * 0.32, 0.1, -0.05);
+      return wingMesh;
+    }
+    wingL = makeWing(-1); g.add(wingL);
+    wingR = makeWing(1); g.add(wingR);
+
+    const tailMesh = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.5, 4), amberMat(wing, { roughness: 0.6 }));
+    tailMesh.position.set(0, -0.55, -0.55);
+    tailMesh.rotation.x = Math.PI / 2.3;
+    g.add(tailMesh);
+
+    return g;
+  }
+
+  /* ---------- scene setup ---------- */
+  function buildScene(){
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(32, 1, 0.1, 20);
+    camera.position.set(0, 0.35, 5.4);
+    camera.lookAt(0, 0.1, 0);
+
+    const ambient = new THREE.AmbientLight(0x8a8f9c, 0.65);
+    scene.add(ambient);
+
+    /* lampu utama bernuansa amber — kesan "sorot panggung" */
+    const spot = new THREE.DirectionalLight(0xffb545, 1.15);
+    spot.position.set(2.2, 3, 3);
+    scene.add(spot);
+
+    const fill = new THREE.DirectionalLight(0x7a90ff, 0.28);
+    fill.position.set(-2, 1, -2);
+    scene.add(fill);
+
+    groupCat = buildCat();
+    groupEagle = buildEagle();
+    groupEagle.visible = false;
+    scene.add(groupCat);
+    scene.add(groupEagle);
+    activeGroup = groupCat;
+
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    resize();
+  }
+
+  function resize(){
+    if(!renderer || !canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(1, rect.width), h = Math.max(1, rect.height);
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+
+  /* ---------- interaksi drag-to-rotate ---------- */
+  function onPointerDown(e){
+    dragging = true; dragMoved = false;
+    lastX = e.clientX; lastY = e.clientY;
+    canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+  }
+  function onPointerMove(e){
+    if(!dragging) return;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    if(Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
+    rotY += dx * 0.012;
+    rotX = Math.max(-0.5, Math.min(0.5, rotX + dy * 0.008));
+    lastX = e.clientX; lastY = e.clientY;
+    clearTimeout(userRotTimer);
+  }
+  function onPointerUp(){
+    dragging = false;
+    userRotTimer = setTimeout(() => {}, 2200); // beri jeda sebelum auto-rotate kerasa lanjut lagi
+  }
+
+  /* ---------- render loop ---------- */
+  function tick(ts){
+    rafId = requestAnimationFrame(tick);
+    if(document.hidden || !activeGroup) return;
+    if(!clock0) clock0 = ts;
+    const t = (ts - clock0) / 1000;
+
+    if(!dragging){
+      rotY += (prefersReduced ? 0 : 0.0028); // auto-rotate lambat, dimatikan kalau reduce-motion
+    }
+    activeGroup.rotation.y = rotY;
+    activeGroup.rotation.x = rotX;
+
+    /* napas halus naik-turun */
+    activeGroup.position.y = Math.sin(t * 1.3) * 0.05;
+
+    if(activeGroup === groupEagle && wingL && wingR){
+      const flap = Math.sin(t * (activeGroup.userData.flying ? 7 : 2.4)) * (activeGroup.userData.flying ? 0.5 : 0.16);
+      wingL.rotation.z = flap;
+      wingR.rotation.z = -flap;
+    }
+    if(activeGroup === groupCat && tail){
+      tail.rotation.y = Math.sin(t * 1.6) * 0.18;
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  /* lirikan pupil mengikuti kursor secara sederhana */
+  function trackCursor(){
+    if(prefersReduced || isTouch) return;
+    window.addEventListener('mousemove', e => {
+      if(!ready || !canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      pupils.forEach(p => {
+        if(p.userData.baseX !== undefined) p.position.x = p.userData.baseX + nx * 0.05;
+      });
+    });
+  }
+
+  function hop(){
+    if(!ready || !activeGroup || prefersReduced) return;
+    const start = performance.now();
+    const dur = 380;
+    function bounce(now){
+      const p = Math.min(1, (now - start) / dur);
+      const arc = Math.sin(p * Math.PI);
+      activeGroup.scale.setScalar(1 + arc * 0.12);
+      if(p < 1) requestAnimationFrame(bounce);
+      else activeGroup.scale.setScalar(1);
+    }
+    requestAnimationFrame(bounce);
+  }
+
+  function setFlying(on){ if(groupEagle) groupEagle.userData.flying = !!on; }
+
+  function setPet(name){
+    if(!ready) return;
+    activeGroup = (name === 'eagle') ? groupEagle : groupCat;
+    groupCat.visible = activeGroup === groupCat;
+    groupEagle.visible = activeGroup === groupEagle;
+  }
+
+  let clickHandler = null;
+  function setClickHandler(fn){ clickHandler = fn; }
+
+  async function init(){
+    if(failed || ready) return ready;
+    canvas = $('#pet3dCanvas');
+    if(!canvas || !supportsWebGL()){ failed = true; return false; }
+
+    const loaded = await loadThree();
+    if(!loaded || !window.THREE){ failed = true; return false; }
+    THREE = window.THREE;
+
+    try{
+      buildScene();
+    }catch(err){
+      console.warn('Pet3D: gagal membangun scene, pakai pet 2D.', err);
+      failed = true;
+      return false;
+    }
+
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    canvas.addEventListener('click', () => {
+      if(!dragMoved && clickHandler) clickHandler();
+    });
+    canvas.setAttribute('tabindex', '0');
+    canvas.setAttribute('role', 'button');
+    canvas.addEventListener('keydown', e => {
+      if((e.key === 'Enter' || e.key === ' ') && clickHandler){ e.preventDefault(); clickHandler(); }
+    });
+    window.addEventListener('resize', debounce(resize, 150));
+
+    trackCursor();
+    canvas.hidden = false;
+    ready = true;
+    rafId = requestAnimationFrame(tick);
+    return true;
+  }
+
+  return {
+    init, setPet, hop, setFlying, setClickHandler,
+    get ready(){ return ready; },
+    get failed(){ return failed; }
+  };
+})();
+
 const Pet = (function(){
   let current = 'cat';
   let bubbleTimer = null;
   let lastSpoke = 0;
   let clickCount = 0;
   let idleTimer = null;
+  let mode3D = false;
 
   function el(){ return current === 'eagle' ? $('#petEagle') : $('#petCat'); }
   function config(){ return (DATA.pets && DATA.pets[current]) || { lines: {}, click: [], cooldown: 14 }; }
@@ -1393,8 +1729,15 @@ const Pet = (function(){
     current = (name === 'eagle') ? 'eagle' : 'cat';
     const cat = $('#petCat');
     const eagle = $('#petEagle');
-    if(cat) cat.hidden = current !== 'cat';
-    if(eagle) eagle.hidden = current !== 'eagle';
+    if(mode3D){
+      /* mode 3D aktif: SVG lama disembunyikan total, canvas 3D yang tampil */
+      if(cat) cat.hidden = true;
+      if(eagle) eagle.hidden = true;
+      Pet3D.setPet(current);
+    }else{
+      if(cat) cat.hidden = current !== 'cat';
+      if(eagle) eagle.hidden = current !== 'eagle';
+    }
     const node = el();
     if(node){
       const label = config().name || (current === 'eagle' ? 'Elang' : 'Kucing');
@@ -1419,6 +1762,7 @@ const Pet = (function(){
   }
 
   function hop(){
+    if(mode3D){ Pet3D.hop(); return; }
     const node = el();
     if(!node || prefersReduced) return;
     node.classList.remove('jump');
@@ -1473,7 +1817,15 @@ const Pet = (function(){
     }, 22000);
   }
 
-  function init(){
+  async function init(){
+    Pet3D.setClickHandler(onClick);
+    const wants3D = !(DATA.settings && DATA.settings.pet3D === false);
+    if(wants3D){
+      try{ mode3D = await Pet3D.init(); }catch(e){ mode3D = false; }
+    }else{
+      mode3D = false;
+    }
+
     setPet((DATA.settings && DATA.settings.pet) || 'cat');
     [$('#petCat'), $('#petEagle')].forEach(node => {
       if(!node) return;
@@ -1486,7 +1838,7 @@ const Pet = (function(){
     idleLoop();
   }
 
-  return { init, setPet, say, onSection, get current(){ return current; } };
+  return { init, setPet, say, onSection, get current(){ return current; }, get is3D(){ return mode3D; } };
 })();
 
 /* =========================================================
@@ -2110,6 +2462,17 @@ function panelPet(){
       <p class="panel-hint">Pergantian langsung terlihat di pojok layar — itu pratinjaunya.</p>
     </div>
     <div class="panel-section">
+      <h4>Model 3D</h4>
+      <div class="panel-row">
+        <span class="rl">Tampilkan pet sebagai model 3D
+          <span class="rs">${Pet.is3D ? 'Aktif sekarang — bisa diputar dengan drag' : (DATA.settings.pet3D === false ? 'Dimatikan manual' : 'Tidak aktif di perangkat ini (fallback ke gambar 2D)')}</span>
+        </span>
+        <button class="switch" type="button" role="switch" data-act="toggle-pet-3d"
+          aria-checked="${DATA.settings.pet3D !== false ? 'true' : 'false'}" aria-label="Model 3D pet"></button>
+      </div>
+      <p class="panel-hint">Perubahan ini butuh refresh halaman untuk terlihat. Kalau dimatikan, pet balik ke ilustrasi 2D biasa.</p>
+    </div>
+    <div class="panel-section">
       <h4>Suara pet</h4>
       <div class="panel-row">
         <span class="rl">Ucapkan dialog dengan suara
@@ -2707,6 +3070,12 @@ async function handleAction(act, el, event){
       DATA.settings.petVoice = DATA.settings.petVoice === false ? true : false;
       if(!DATA.settings.petVoice) PetVoice.stop();
       saveNow(); renderPanel();
+      return;
+    }
+    case 'toggle-pet-3d': {
+      DATA.settings.pet3D = DATA.settings.pet3D === false ? true : false;
+      saveNow(); renderPanel();
+      toast('Refresh halaman untuk menerapkan perubahan ini.');
       return;
     }
     case 'music-test': {
