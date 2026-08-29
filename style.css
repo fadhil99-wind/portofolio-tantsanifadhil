@@ -389,11 +389,20 @@ body[data-motion="minimal"] .hero::before{ animation:none; }
   border: 1px solid var(--line-strong); overflow:hidden;
   box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 30px 60px -20px rgba(255,120,30,0.18);
 }
+/* posisi absolut supaya foto & placeholder selalu bertumpuk sempurna,
+   bukan mengikuti alur dokumen normal (yang bisa saling mendorong) */
+.portrait-frame img,
+.portrait-frame .ph{ position:absolute; inset:0; }
 .portrait-frame img{ width:100%; height:100%; object-fit:cover; }
 .portrait-frame .ph{
   width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:10px; color: var(--ink-faint); text-align:center; padding:20px; font-size: 13px;
 }
+/* PENTING: atribut hidden HARUS menang atas display:flex di atas —
+   tanpa baris ini, placeholder tetap tampil menutupi foto walau
+   sudah berhasil diunggah (bug yang sempat terjadi). */
+.portrait-frame .ph[hidden],
+.portrait-frame img[hidden]{ display:none; }
 .portrait-frame .ph svg{ width:34px; height:34px; stroke: var(--ink-faint); fill:none; }
 .portrait-upload-btn{
   position:absolute; bottom:12px; right:12px;
