@@ -279,50 +279,36 @@
        cadangan — pet tidak pernah hilang sama sekali. -->
   <canvas id="pet3dCanvas" class="pet-3d-canvas" hidden aria-hidden="true"></canvas>
 
-  <div id="petCat" class="pet pet-cat" role="button" tabindex="0" aria-label="Maskot kucing — klik untuk berinteraksi">
+  <div id="petGuy" class="pet pet-guy" role="button" tabindex="0" aria-label="Maskot host — klik untuk berinteraksi">
     <div class="pet-shadow" aria-hidden="true"></div>
     <svg viewBox="0 0 96 96" aria-hidden="true">
-      <g class="cat-body-group">
-        <path class="cat-tail" d="M78 78c10-2 14-14 6-20" fill="none" stroke="#f3efe4" stroke-width="5" stroke-linecap="round"/>
-        <ellipse cx="46" cy="70" rx="26" ry="18" fill="#12151b" stroke="#2a2f3a" stroke-width="1.5"/>
-        <path class="cat-ear-l" d="M26 44 L20 22 L38 38 Z" fill="#12151b" stroke="#2a2f3a" stroke-width="1.5"/>
-        <path class="cat-ear-r" d="M66 44 L72 22 L54 38 Z" fill="#12151b" stroke="#2a2f3a" stroke-width="1.5"/>
-        <circle cx="46" cy="50" r="26" fill="#12151b" stroke="#2a2f3a" stroke-width="1.5"/>
-        <g class="cat-eye-l">
-          <circle cx="37" cy="49" r="6.5" fill="#f3efe4"/>
-          <circle class="pet-pupil" cx="37" cy="49" r="3" fill="#171008"/>
+      <g class="guy-body-group">
+        <!-- kaki -->
+        <path d="M38 88 L40 66 L46 66 L45 88Z" fill="#171b23" stroke="#2a2f3a" stroke-width="1.4"/>
+        <path d="M58 88 L56 66 L50 66 L51 88Z" fill="#171b23" stroke="#2a2f3a" stroke-width="1.4"/>
+        <!-- jas / badan -->
+        <path d="M30 42 C30 34 38 30 48 30 C58 30 66 34 66 42 L64 68 C64 71 60 73 48 73 C36 73 32 71 32 68 Z"
+              fill="#171b23" stroke="#2a2f3a" stroke-width="1.6"/>
+        <!-- kemeja & dasi -->
+        <path d="M42 32 L48 40 L54 32 L54 30 L42 30 Z" fill="#f3efe4"/>
+        <path d="M46.5 38 L48 44 L49.5 38 L48 36Z" fill="#ffb545"/>
+        <!-- lengan -->
+        <path class="guy-arm-l" d="M31 40 C24 44 21 52 22 60 L28 60 C28 53 30 47 35 43Z" fill="#171b23" stroke="#2a2f3a" stroke-width="1.4"/>
+        <path class="guy-arm-r" d="M65 40 C73 45 76 54 74 62 L67 61 C68 54 66 48 61 43Z" fill="#171b23" stroke="#2a2f3a" stroke-width="1.4"/>
+        <!-- tangan + mic -->
+        <circle cx="75" cy="63" r="4" fill="#e8b892"/>
+        <rect x="78" y="52" width="4" height="14" rx="2" fill="#666c7a"/>
+        <circle cx="80" cy="50" r="6" fill="#12151b" stroke="#666c7a" stroke-width="1.4"/>
+        <!-- kepala -->
+        <circle cx="48" cy="20" r="14" fill="#e8b892"/>
+        <path d="M34 18 C34 8 62 8 62 18 C62 12 56 9 48 9 C40 9 34 12 34 18Z" fill="#171008"/>
+        <g class="guy-eye-l">
+          <circle class="pet-pupil" cx="43" cy="20" r="2.4" fill="#171008"/>
         </g>
-        <g class="cat-eye-r">
-          <circle cx="55" cy="49" r="6.5" fill="#f3efe4"/>
-          <circle class="pet-pupil" cx="55" cy="49" r="3" fill="#171008"/>
+        <g class="guy-eye-r">
+          <circle class="pet-pupil" cx="53" cy="20" r="2.4" fill="#171008"/>
         </g>
-        <path d="M44 58c1 2 5 2 6 0" fill="none" stroke="#ffb545" stroke-width="1.6" stroke-linecap="round"/>
-        <path d="M31 62c-6 1-9 4-10 7M61 62c6 1 9 4 10 7M32 58c-6-1-10 0-13 2M60 58c6-1 10 0 13 2" fill="none" stroke="#9aa0ad" stroke-width="1" stroke-linecap="round"/>
-      </g>
-    </svg>
-  </div>
-
-  <div id="petEagle" class="pet pet-eagle" role="button" tabindex="0" aria-label="Maskot elang — klik untuk berinteraksi" hidden>
-    <div class="pet-shadow" aria-hidden="true"></div>
-    <svg viewBox="0 0 96 96" aria-hidden="true">
-      <g class="eagle-body-group">
-        <path class="eagle-wing-l" d="M40 52 C20 40 10 46 6 58 C18 58 26 62 38 62 Z" fill="#171b23" stroke="#2a2f3a" stroke-width="1.5"/>
-        <path class="eagle-wing-r" d="M56 52 C76 40 86 46 90 58 C78 58 70 62 58 62 Z" fill="#171b23" stroke="#2a2f3a" stroke-width="1.5"/>
-        <path d="M48 40 C60 40 64 54 60 68 C56 80 40 80 36 68 C32 54 36 40 48 40 Z" fill="#12151b" stroke="#2a2f3a" stroke-width="1.5"/>
-        <path class="eagle-tail" d="M42 74 L48 90 L54 74 Z" fill="#171b23" stroke="#2a2f3a" stroke-width="1.4"/>
-        <circle cx="48" cy="34" r="17" fill="#f3efe4" stroke="#2a2f3a" stroke-width="1.4"/>
-        <path d="M48 17 C40 17 34 23 33 30 C40 26 56 26 63 30 C62 23 56 17 48 17 Z" fill="#e8e2d2"/>
-        <g class="eagle-eye-l">
-          <circle cx="41" cy="33" r="4.6" fill="#12151b"/>
-          <circle class="pet-pupil" cx="41" cy="33" r="2.1" fill="#ffb545"/>
-        </g>
-        <g class="eagle-eye-r">
-          <circle cx="55" cy="33" r="4.6" fill="#12151b"/>
-          <circle class="pet-pupil" cx="55" cy="33" r="2.1" fill="#ffb545"/>
-        </g>
-        <path d="M48 38 L44 44 C46 47 50 47 52 44 Z" fill="#ff9a2e"/>
-        <path d="M48 44 L45 50 L51 50 Z" fill="#ff5f1f"/>
-        <path d="M42 78 l-3 6 M54 78 l3 6" stroke="#ff9a2e" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+        <path d="M44 26c1.6 1.6 6.4 1.6 8 0" fill="none" stroke="#a5673f" stroke-width="1.4" stroke-linecap="round"/>
       </g>
     </svg>
   </div>
