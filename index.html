@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tantsani Fadhil Ramadhan | Portfolio</title>
+    <meta name="description" content="Portfolio pribadi Tantsani Fadhil Ramadhan - Mahasiswa S1 Manajemen UPN Veteran Yogyakarta">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-text">INITIALIZING</div>
+        <div class="loading-bar">
+            <div class="loading-bar-fill"></div>
+        </div>
+    </div>
+
+    <!-- Background Elements -->
+    <canvas id="particles-canvas"></canvas>
+    <div class="grid-bg"></div>
+
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <a href="#" class="nav-logo" id="navLogo">TFR</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#home" onclick="closeNav()">Home</a></li>
+            <li><a href="#about" onclick="closeNav()">About</a></li>
+            <li><a href="#journey" onclick="closeNav()">Journey</a></li>
+            <li><a href="#skills" onclick="closeNav()">Skills</a></li>
+            <li><a href="#projects" onclick="closeNav()">Projects</a></li>
+            <li><a href="#organization" onclick="closeNav()">Organization</a></li>
+            <li><a href="#contact" onclick="closeNav()">Contact</a></li>
+        </ul>
+        <div class="nav-toggle" id="navToggle" onclick="toggleNav()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-profile-img" id="heroProfileImg">
+                <span class="initials" id="heroInitials">TFR</span>
+            </div>
+            <div class="hero-badge">Management Student • Entrepreneur • Innovator</div>
+            <h1 class="hero-title">
+                <span class="highlight glitch" data-text="Tantsani Fadhil">Tantsani Fadhil</span><br>
+                Ramadhan
+            </h1>
+            <p class="hero-subtitle" id="heroSubtitle">Mahasiswa S1 Manajemen — UPN "Veteran" Yogyakarta</p>
+            <p class="hero-description" id="heroDesc">
+                Menghubungkan dunia bisnis, kewirausahaan, dan teknologi untuk menciptakan solusi yang berdampak. 
+                Setiap langkah adalah tentang belajar, berkembang, dan berkarya.
+            </p>
+            <div class="hero-cta">
+                <a href="#projects" class="btn-primary">Lihat Proyek</a>
+                <a href="#contact" class="btn-secondary">Hubungi Saya</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+            <div class="arrow"></div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="section-header fade-in">
+            <span class="section-tag">// Tentang Saya</span>
+            <h2 class="section-title">Who Am I</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="about-grid">
+            <div class="about-image fade-in">
+                <div class="image-frame">
+                    <img id="aboutPhoto" src="" alt="Tantsani Fadhil Ramadhan" style="display:none;">
+                    <div id="aboutPhotoPlaceholder" class="photo-placeholder">
+                        <span>TFR</span>
+                    </div>
+                </div>
+                <div class="decoration"></div>
+            </div>
+            <div class="about-text fade-in">
+                <h3 id="aboutTitle">Tantsani Fadhil Ramadhan</h3>
+                <p id="aboutP1">Saya adalah mahasiswa S1 Manajemen di UPN "Veteran" Yogyakarta yang memiliki ketertarikan mendalam pada dunia bisnis, kewirausahaan, strategi, logistik, dan teknologi. Bagi saya, setiap tantangan adalah peluang untuk belajar dan bertumbuh.</p>
+                <p id="aboutP2">Dengan semangat kewirausahaan dan rasa ingin tahu yang tinggi, saya aktif mengembangkan berbagai proyek yang menggabungkan pendekatan bisnis dengan inovasi teknologi. Saya percaya bahwa kolaborasi dan continuous learning adalah kunci untuk menciptakan dampak yang berarti.</p>
+                <p id="aboutP3">Portofolio ini adalah rekam jejak perjalanan saya — dari proses belajar, pengembangan ide, hingga eksekusi nyata. Selamat menjelajah.</p>
+                <div class="about-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="statProjects">4+</span>
+                        <span class="stat-label">Proyek</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="statOrg">3+</span>
+                        <span class="stat-label">Organisasi</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="statSkills">10+</span>
+                        <span class="stat-label">Skills</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Journey Section -->
+    <section id="journey">
+        <div class="section-header fade-in">
+            <span class="section-tag">// Perjalanan</span>
+            <h2 class="section-title">My Journey</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="timeline">
+            <div class="timeline-item fade-in">
+                <div class="timeline-content">
+                    <div class="timeline-year">2026</div>
+                    <h4 class="timeline-title">Ketua Final Project Manajemen</h4>
+                    <p class="timeline-desc">Memimpin pelaksanaan Final Project Manajemen 2026 di Panti Asuhan, mengkoordinasikan tim dan mengelola seluruh rangkaian kegiatan.</p>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-content">
+                    <div class="timeline-year">2025 - 2026</div>
+                    <h4 class="timeline-title">Duta Genre (Generasi Berencana)</h4>
+                    <p class="timeline-desc">Menjadi ambassador program Generasi Berencana, menyebarkan edukasi tentang perencanaan masa depan bagi pemuda.</p>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-content">
+                    <div class="timeline-year">2025</div>
+                    <h4 class="timeline-title">Laksamana GO</h4>
+                    <p class="timeline-desc">Mengembangkan proyek Laksamana GO — sebuah inisiatif yang menggabungkan konsep bisnis dan teknologi untuk menciptakan solusi inovatif.</p>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-content">
+                    <div class="timeline-year">2024</div>
+                    <h4 class="timeline-title">Public Speaker</h4>
+                    <p class="timeline-desc">Mengasah kemampuan komunikasi publik melalui berbagai kesempatan berbicara di depan umum, seminar, dan forum diskusi.</p>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-content">
+                    <div class="timeline-year">2023</div>
+                    <h4 class="timeline-title">Mahasiswa S1 Manajemen</h4>
+                    <p class="timeline-desc">Memulai perjalanan akademik di UPN "Veteran" Yogyakarta, mendalami ilmu manajemen, strategi bisnis, dan kewirausahaan.</p>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills">
+        <div class="section-header fade-in">
+            <span class="section-tag">// Kemampuan</span>
+            <h2 class="section-title">Skills & Expertise</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="skills-grid">
+            <div class="skill-card fade-in">
+                <div class="skill-icon">📊</div>
+                <h4>Manajemen & Strategi Bisnis</h4>
+                <p>Memahami perencanaan strategis, analisis bisnis, dan pengambilan keputusan berbasis data untuk mengoptimalkan performa organisasi.</p>
+                <div class="skill-tags">
+                    <span class="skill-tag">Strategic Planning</span>
+                    <span class="skill-tag">Business Analysis</span>
+                    <span class="skill-tag">Decision Making</span>
+                </div>
+            </div>
+            <div class="skill-card fade-in">
+                <div class="skill-icon">🚀</div>
+                <h4>Kewirausahaan</h4>
+                <p>Mengembangkan mindset entrepreneur, mengidentifikasi peluang pasar, dan membangun model bisnis yang sustainable dan scalable.</p>
+                <div class="skill-tags">
+                    <span class="skill-tag">Business Model</span>
+                    <span class="skill-tag">Market Research</span>
+                    <span class="skill-tag">Innovation</span>
+                </div>
+            </div>
+            <div class="skill-card fade-in">
+                <div class="skill-icon">📦</div>
+                <h4>Logistik & Supply Chain</h4>
+                <p>Memahami alur distribusi, manajemen rantai pasok, dan optimasi proses logistik untuk efisiensi operasional.</p>
+                <div class="skill-tags">
+                    <span class="skill-tag">Supply Chain</span>
+                    <span class="skill-tag">Distribution</span>
+                    <span class="skill-tag">Operations</span>
+                </div>
+            </div>
+            <div class="skill-card fade-in">
+                <div class="skill-icon">💻</div>
+                <h4>Teknologi & Digital</h4>
+                <p>Mengeksplorasi pemanfaatan teknologi digital untuk mendukung pengembangan bisnis dan menciptakan solusi berbasis inovasi.</p>
+                <div class="skill-tags">
+                    <span class="skill-tag">Digital Tools</span>
+                    <span class="skill-tag">Tech Integration</span>
+                    <span class="skill-tag">Automation</span>
+                </div>
+            </div>
+            <div class="skill-card fade-in">
+                <div class="skill-icon">🎤</div>
+                <h4>Public Speaking</h4>
+                <p>Kemampuan berkomunikasi di depan umum dengan percaya diri, menyampaikan ide secara terstruktur, dan memengaruhi audiens.</p>
+                <div class="skill-tags">
+                    <span class="skill-tag">Communication</span>
+                    <span class="skill-tag">Presentation</span>
+                    <span class="skill-tag">Persuasion</span>
+                </div>
+            </div>
+            <div class="skill-card fade-in">
+                <div class="skill-icon">👥</div>
+                <h4>Kepemimpinan & Organisasi</h4>
+                <p>Berpengalaman memimpin tim, mengelola proyek, dan mengkoordinasikan kegiatan organisasi dengan efektif dan efisien.</p>
+                <div class="skill-tags">
+                    <span class="skill-tag">Leadership</span>
+                    <span class="skill-tag">Team Management</span>
+                    <span class="skill-tag">Project Lead</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects">
+        <div class="section-header fade-in">
+            <span class="section-tag">// Proyek</span>
+            <h2 class="section-title">Featured Projects</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="projects-grid">
+            <div class="project-card fade-in">
+                <div class="project-image"><span class="project-icon">⚓</span></div>
+                <div class="project-info">
+                    <div class="project-category">Business & Technology</div>
+                    <h3 class="project-title">Laksamana GO</h3>
+                    <p class="project-desc">Proyek inovatif yang menggabungkan konsep bisnis dengan teknologi untuk menciptakan platform solusi yang berdampak.</p>
+                    <div class="project-tech">
+                        <span>Business Strategy</span>
+                        <span>Tech Innovation</span>
+                        <span>Problem Solving</span>
+                    </div>
+                </div>
+            </div>
+            <div class="project-card fade-in">
+                <div class="project-image"><span class="project-icon">🌟</span></div>
+                <div class="project-info">
+                    <div class="project-category">Social & Education</div>
+                    <h3 class="project-title">Duta Genre</h3>
+                    <p class="project-desc">Menjadi ambassador Generasi Berencana, menyebarkan edukasi tentang perencanaan masa depan dan pencegahan masalah remaja.</p>
+                    <div class="project-tech">
+                        <span>Public Advocacy</span>
+                        <span>Education</span>
+                        <span>Youth Development</span>
+                    </div>
+                </div>
+            </div>
+            <div class="project-card fade-in">
+                <div class="project-image"><span class="project-icon">🎤</span></div>
+                <div class="project-info">
+                    <div class="project-category">Communication</div>
+                    <h3 class="project-title">Public Speaker</h3>
+                    <p class="project-desc">Aktif sebagai pembicara publik dalam berbagai forum, seminar, dan acara kampus. Mengasah kemampuan menyampaikan gagasan kompleks.</p>
+                    <div class="project-tech">
+                        <span>Public Speaking</span>
+                        <span>Communication</span>
+                        <span>Storytelling</span>
+                    </div>
+                </div>
+            </div>
+            <div class="project-card fade-in">
+                <div class="project-image"><span class="project-icon">🏠</span></div>
+                <div class="project-info">
+                    <div class="project-category">Leadership & Social</div>
+                    <h3 class="project-title">Ketua Final Project Manajemen 2026</h3>
+                    <p class="project-desc">Memimpin dan mengkoordinasikan seluruh rangkaian Final Project Manajemen 2026 di Panti Asuhan.</p>
+                    <div class="project-tech">
+                        <span>Project Management</span>
+                        <span>Leadership</span>
+                        <span>Social Impact</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Organization Section -->
+    <section id="organization">
+        <div class="section-header fade-in">
+            <span class="section-tag">// Organisasi</span>
+            <h2 class="section-title">Organization Experience</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="org-grid">
+            <div class="org-card fade-in">
+                <div class="org-role">Ketua</div>
+                <h4>Final Project Manajemen 2026</h4>
+                <p>Memimpin tim dalam pelaksanaan kegiatan Final Project di Panti Asuhan, mengelola perencanaan hingga eksekusi acara.</p>
+                <div class="org-period">2026</div>
+            </div>
+            <div class="org-card fade-in">
+                <div class="org-role">Duta / Ambassador</div>
+                <h4>Duta Genre (Generasi Berencana)</h4>
+                <p>Menjadi representasi program BKKBN dalam menyebarkan edukasi perencanaan kehidupan berkeluarga bagi generasi muda.</p>
+                <div class="org-period">2025 - 2026</div>
+            </div>
+            <div class="org-card fade-in">
+                <div class="org-role">Anggota Aktif</div>
+                <h4>Organisasi Kampus</h4>
+                <p>Aktif berpartisipasi dalam berbagai kegiatan organisasi kemahasiswaan, mengembangkan soft skill dan networking.</p>
+                <div class="org-period">2023 - Sekarang</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <div class="section-header fade-in">
+            <span class="section-tag"> Kontak</span>
+            <h2 class="section-title">Let's Connect</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="contact-container fade-in">
+            <p class="contact-text">
+                Terbuka untuk kolaborasi, diskusi bisnis, peluang karier, atau sekadar berbagi ide. 
+                Jangan ragu untuk menghubungi saya melalui platform berikut.
+            </p>
+            <div class="contact-links">
+                <a href="mailto:tantsani@email.com" class="contact-link" id="contactEmail">
+                    <span class="icon">✉️</span><span>Email</span>
+                </a>
+                <a href="#" class="contact-link" id="contactLinkedin">
+                    <span class="icon">💼</span><span>LinkedIn</span>
+                </a>
+                <a href="#" class="contact-link" id="contactInstagram">
+                    <span class="icon">📷</span><span>Instagram</span>
+                </a>
+                <a href="#" class="contact-link">
+                    <span class="icon">🐦</span><span>Twitter</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-text">
+            © 2026 <span class="neon">Tantsani Fadhil Ramadhan</span>. All rights reserved.
+        </div>
+        <div class="footer-text">
+            Built with <span class="neon">◆</span> precision & vision
+        </div>
+    </footer>
+
+    <!-- Music Consent -->
+    <div class="music-consent" id="musicConsent">
+        <div class="music-consent-text">
+            🎵 Izinkan <strong>background music</strong> untuk pengalaman terbaik?
+        </div>
+        <div class="music-consent-btns">
+            <button class="music-consent-btn primary" onclick="acceptMusic()">Izinkan</button>
+            <button class="music-consent-btn secondary" onclick="declineMusic()">Nanti</button>
+        </div>
+    </div>
+
+    <!-- Music Player -->
+    <div class="music-player" id="musicPlayer">
+        <div class="music-expanded" id="musicExpanded">
+            <div class="music-header">
+                <div class="music-header-title">⚡ Now Playing</div>
+                <button class="music-close-expand" onclick="toggleMusicExpand()">✕</button>
+            </div>
+            <div class="now-playing">
+                <div class="np-visualizer">
+                    <div class="viz-bar"></div>
+                    <div class="viz-bar"></div>
+                    <div class="viz-bar"></div>
+                    <div class="viz-bar"></div>
+                    <div class="viz-bar"></div>
+                </div>
+                <div class="np-info">
+                    <div class="np-label">From YouTube</div>
+                    <div class="np-title" id="npTitle">—</div>
+                    <div class="np-artist" id="npArtist">—</div>
+                </div>
+            </div>
+            <div class="music-progress" id="musicProgress">
+                <div class="music-progress-fill" id="musicProgressFill"></div>
+            </div>
+            <div class="music-controls">
+                <button class="music-btn" onclick="prevTrack()" title="Previous">⏮</button>
+                <button class="music-btn music-btn-play" id="playBtn" onclick="togglePlay()">▶</button>
+                <button class="music-btn" onclick="nextTrack()" title="Next">⏭</button>
+                <button class="music-btn" onclick="toggleShuffle()" id="shuffleBtn" title="Shuffle">🔀</button>
+            </div>
+            <div class="music-volume">
+                <span class="music-volume-icon" onclick="toggleMute()">🔊</span>
+                <input type="range" class="music-volume-slider" id="volumeSlider" min="0" max="100" value="30" oninput="changeVolume(this.value)">
+            </div>
+            <div class="music-playlist" id="musicPlaylist"></div>
+        </div>
+        <button class="music-toggle" id="musicToggle" onclick="toggleMusicExpand()">
+            <span class="music-toggle-ring"></span>
+            <span id="musicToggleIcon">🎵</span>
+        </button>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-box">
+            <h3>⚡ ACCESS REQUIRED</h3>
+            <p style="color: var(--silver-dark); font-size: 0.8rem; margin-bottom: 20px;">Enter credentials to continue</p>
+            <input type="text" id="loginUser" placeholder="Username" autocomplete="off">
+            <input type="password" id="loginPass" placeholder="Password" autocomplete="off">
+            <div class="login-error" id="loginError">Invalid credentials. Access denied.</div>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button class="admin-btn" onclick="attemptLogin()">Enter</button>
+                <button class="admin-btn admin-btn-secondary" onclick="closeLogin()">Cancel</button>
+            </div>
+            <div class="login-hint">💡 Tip: Long-press logo "TFR" (1.5 detik) di HP untuk membuka panel ini</div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-overlay" id="adminOverlay">
+        <div class="admin-panel">
+            <button class="admin-close" onclick="closeAdmin()">✕</button>
+            <h2>⚡ CONTROL PANEL</h2>
+            
+            <div class="admin-section">
+                <h3>📸 Foto Profil</h3>
+                <div class="admin-photo-upload">
+                    <div class="admin-photo-preview" id="adminPhotoPreview">
+                        <span class="placeholder">👤</span>
+                    </div>
+                    <div>
+                        <input type="file" id="photoInput" accept="image/*" style="display:none;" onchange="handlePhotoUpload(event)">
+                        <button class="admin-btn" onclick="document.getElementById('photoInput').click()" style="font-size:0.75rem; padding:8px 15px;">Upload Foto</button>
+                        <p style="font-size:0.7rem; color:var(--silver-dark); margin-top:5px;">Format: JPG, PNG. Max 5MB.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3>📝 Informasi Utama</h3>
+                <div class="admin-field">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="editName" placeholder="Nama lengkap">
+                </div>
+                <div class="admin-field">
+                    <label>Subtitle / Tagline</label>
+                    <input type="text" id="editSubtitle" placeholder="Mahasiswa S1 Manajemen — UPN Veteran Yogyakarta">
+                </div>
+                <div class="admin-field">
+                    <label>Deskripsi Hero</label>
+                    <textarea id="editHeroDesc"></textarea>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3>👤 Tentang Saya</h3>
+                <div class="admin-field">
+                    <label>Paragraf 1</label>
+                    <textarea id="editAboutP1"></textarea>
+                </div>
+                <div class="admin-field">
+                    <label>Paragraf 2</label>
+                    <textarea id="editAboutP2"></textarea>
+                </div>
+                <div class="admin-field">
+                    <label>Paragraf 3</label>
+                    <textarea id="editAboutP3"></textarea>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3>📊 Statistik</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                    <div class="admin-field">
+                        <label>Proyek</label>
+                        <input type="text" id="editStatProjects" placeholder="4+">
+                    </div>
+                    <div class="admin-field">
+                        <label>Organisasi</label>
+                        <input type="text" id="editStatOrg" placeholder="3+">
+                    </div>
+                    <div class="admin-field">
+                        <label>Skills</label>
+                        <input type="text" id="editStatSkills" placeholder="10+">
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3>📧 Kontak</h3>
+                <div class="admin-field">
+                    <label>Email</label>
+                    <input type="email" id="editEmail" placeholder="email@example.com">
+                </div>
+                <div class="admin-field">
+                    <label>LinkedIn URL</label>
+                    <input type="url" id="editLinkedin" placeholder="https://linkedin.com/in/...">
+                </div>
+                <div class="admin-field">
+                    <label>Instagram URL</label>
+                    <input type="url" id="editInstagram" placeholder="https://instagram.com/...">
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3>🎵 Playlist Musik (YouTube)</h3>
+                <p style="font-size:0.8rem; color:var(--silver-dark); margin-bottom:15px; line-height:1.6;">
+                    Tambahkan URL YouTube untuk background music. Bisa dari YouTube Music, video musik, atau audio track.
+                </p>
+                <div class="music-admin-list" id="musicAdminList"></div>
+                <div class="add-track-form">
+                    <h4>+ Tambah Lagu Baru</h4>
+                    <div class="admin-field">
+                        <label>Judul Lagu</label>
+                        <input type="text" id="newTrackTitle" placeholder="Contoh: Lofi Study Beats">
+                    </div>
+                    <div class="admin-field">
+                        <label>Artist / Channel</label>
+                        <input type="text" id="newTrackArtist" placeholder="Contoh: Lofi Girl">
+                    </div>
+                    <div class="admin-field">
+                        <label>URL YouTube / YouTube Music</label>
+                        <input type="url" id="newTrackUrl" placeholder="https://youtube.com/watch?v=...">
+                    </div>
+                    <button class="admin-btn" onclick="addNewTrack()" style="font-size:0.75rem; padding:8px 20px;">+ Tambah ke Playlist</button>
+                </div>
+                <div style="margin-top:15px;">
+                    <button class="admin-btn admin-btn-secondary" onclick="loadDefaultPlaylist()" style="font-size:0.75rem; padding:8px 15px;">🔄 Reset ke Default</button>
+                </div>
+            </div>
+
+            <div class="admin-actions">
+                <button class="admin-btn" onclick="saveAllChanges()">💾 Simpan Semua</button>
+                <button class="admin-btn admin-btn-secondary" onclick="resetAll()">🔄 Reset Default</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">Perubahan berhasil disimpan!</div>
+
+    <!-- Scripts (order matters) -->
+    <script src="js/config.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/music.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
